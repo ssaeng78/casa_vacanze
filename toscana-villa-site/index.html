@@ -66,8 +66,21 @@
     .experience .copy{color:var(--muted)}
     .experience .fact{border-top-color:rgba(7,61,55,.18)}
     .experience .fact span{color:var(--muted)}
-    .intro .thumbs{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+    .intro .thumbs{grid-template-columns:repeat(4,minmax(0,1fr));gap:24px}
     @media(max-width:800px){.intro .thumbs{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}}
+    .panorama{height:auto;padding:10px 0 8px;background:var(--cream)}
+    .pano-frame{position:relative;width:min(1180px,calc(100% - 40px));margin:0 auto;overflow:hidden;box-shadow:var(--shadow)}
+    .panorama img{width:100%;height:auto;object-fit:contain}
+    .panorama:after{display:none}
+    .pano-frame:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(3,33,30,.54),rgba(3,33,30,.08) 62%,rgba(3,33,30,.1));pointer-events:none}
+    .pano-copy{left:64px;right:260px;bottom:56px;max-width:none}
+    .pano-valley-button{position:absolute;z-index:2;right:34px;bottom:34px;padding:13px 18px;border:1px solid rgba(255,255,255,.55);border-radius:4px;background:rgba(211,166,79,.94);color:#07334a;font-weight:700;line-height:1;box-shadow:0 12px 26px rgba(0,0,0,.22)}
+    .pano-valley-button:hover{background:#f0c15d;transform:translateY(-1px)}
+    .wide-panorama{background:var(--cream)}
+    @media(max-width:800px){.panorama{padding:6px 0}.pano-frame{width:calc(100% - 8px)}.pano-copy{left:18px;right:18px;bottom:74px}.pano-copy h2{font-size:clamp(2.3rem,13vw,4.2rem)}.pano-valley-button{right:16px;bottom:18px;padding:11px 13px;font-size:.82rem}.intro .thumbs{gap:6px}}
+    .guest-ratings{padding:10px 0 8px;background:var(--cream)}
+    .guest-ratings img{width:min(1180px,calc(100% - 40px));height:auto;margin:0 auto;object-fit:contain;box-shadow:var(--shadow)}
+    @media(max-width:800px){.guest-ratings{padding:6px 0}.guest-ratings img{width:calc(100% - 8px)}}
   </style>
 </head>
 <body>
@@ -75,7 +88,8 @@
   <main>
     <section class="hero" id="home"><img src="images/hero-main.png" alt="Italian Villa ท่ามกลางขุนเขาและความเป็นส่วนตัวของ Toscana Valley เขาใหญ่" fetchpriority="high"></section>
     <section class="intro" id="villa"><div class="wrap"><div class="section-head"><h2>Your Italian Escape<span>เมื่อเสน่ห์แห่งอิตาลี ที่เปลี่ยนทุกวันให้เป็นการพักผ่อนแสนพิเศษ</span></h2><a class="explore-prompt" href="#experience"><span>เริ่มสำรวจบ้านของเรา</span><small>Start to explore →</small></a></div><div class="thumbs"><figure class="thumb"><img src="images/card-living.png" alt="ห้องนั่งเล่นเพดานสูงของวิลล่า" loading="lazy"></figure><figure class="thumb"><img src="images/card-courtyard.png" alt="ทางเดินริมสระและสวนของวิลล่า" loading="lazy"></figure><figure class="thumb"><img src="images/card-pool.png" alt="สระว่ายน้ำส่วนตัวช่วงพระอาทิตย์ตก" loading="lazy"></figure><figure class="thumb"><img src="images/card-entrance.png" alt="ประตูทางเข้าวิลล่าและสวนดอกไม้" loading="lazy"></figure></div></div></section>
-    <section class="panorama"><img src="images/toscana-view.jpg" alt="ทิวทัศน์ Toscana Valley และสนามกอล์ฟ" loading="lazy"><div class="pano-copy"><div class="kicker">Surrounded by nature</div><h2>Toscana Valley</h2><p>ตื่นขึ้นพร้อมวิวขุนเขา สูดอากาศบริสุทธิ์ และใช้ชีวิตอย่างช้า ๆ ท่ามกลางภูมิทัศน์ที่สวยงามในทุกฤดูกาล</p></div></section>
+    <section class="guest-ratings"><img src="images/guest-ratings.png" alt="คะแนนรีวิวจาก Booking.com และ Airbnb ของ Casa Vacanze" loading="lazy"></section>
+    <section class="panorama"><div class="pano-frame"><img src="images/toscana-view.jpg" alt="ทิวทัศน์ Toscana Valley และสนามกอล์ฟ" loading="lazy"><div class="pano-copy"><div class="kicker">Surrounded by nature</div><h2>Toscana Valley</h2><p>ตื่นขึ้นพร้อมวิวขุนเขา สูดอากาศบริสุทธิ์ และใช้ชีวิตอย่างช้า ๆ ท่ามกลางภูมิทัศน์ที่สวยงามในทุกฤดูกาล</p></div><a class="pano-valley-button" href="#gallery">Explore Toscana Valley</a></div></section>
     <section class="wide-panorama"><img src="images/toscana-sunset-panorama.jpg" alt="วิวพาโนรามา Toscana Valley และขุนเขาในช่วงพระอาทิตย์ตก" loading="lazy"></section>
     <section class="experience" id="experience"><div class="wrap experience-grid"><figure class="portrait"><img src="images/pool-vertical.jpg" alt="ห้องพักที่เชื่อมต่อกับสระว่ายน้ำส่วนตัว" loading="lazy"></figure><div><div class="kicker">Private Villa Experience</div><h2>Your own piece<br>of Tuscany</h2><p class="copy">บ้านพักที่ให้ความรู้สึกเหมือนยกชนบทอิตาลีมาไว้กลางเขาใหญ่ ทุกห้องเชื่อมโยงกับธรรมชาติ แสงแดด และสวนส่วนตัว พร้อมมุมพักผ่อนสำหรับทุกคนในครอบครัว</p><div class="facts"><div class="fact"><strong>360°</strong><span>วิวภูเขาและธรรมชาติโดยรอบ</span></div><div class="fact"><strong>Private</strong><span>สระว่ายน้ำและพื้นที่พักผ่อนส่วนตัว</span></div><div class="fact"><strong>Italian</strong><span>สถาปัตยกรรมและรายละเอียดเหนือกาลเวลา</span></div><div class="fact"><strong>Khao Yai</strong><span>ทำเลใจกลาง Toscana Valley</span></div></div><a class="cta" href="#gallery">ชมภาพเพิ่มเติม <span>→</span></a></div></div></section>
     <section class="gallery" id="gallery"><div class="wrap"><div class="section-head"><div class="kicker">Inside the villa</div><h2>Every corner<br>tells a story</h2><p>โทนสีอบอุ่น เฟอร์นิเจอร์คลาสสิก และรายละเอียดที่คัดสรรมาอย่างตั้งใจ</p></div><div class="gallery-grid"><figure class="tile"><img src="images/piano.jpg" alt="เปียโนในห้องรับแขก" loading="lazy"></figure><figure class="tile"><img src="images/study.jpg" alt="ห้องทำงานสไตล์อิตาเลียน" loading="lazy"></figure><figure class="tile"><img src="images/interior-1.jpg" alt="รายละเอียดภายในบ้าน" loading="lazy"></figure><figure class="tile"><img src="images/interior-2.jpg" alt="มุมพักผ่อนภายในบ้าน" loading="lazy"></figure><figure class="tile"><img src="images/detail-1.jpg" alt="รายละเอียดการตกแต่ง" loading="lazy"></figure></div></div></section>
