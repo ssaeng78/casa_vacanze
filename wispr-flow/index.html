@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VoiceFlow — พูดได้เลย ไม่ต้องพิมพ์</title>
+<meta name="description" content="แปลงเสียงพูดเป็นข้อความที่เรียบเรียงแล้ว เร็วกว่าพิมพ์ 4 เท่า ใช้ได้ทุกแอป">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #faf7f2;
+    --bg-soft: #f3eee6;
+    --ink: #171410;
+    --ink-soft: #5d564b;
+    --ink-faint: #8a8275;
+    --card: #ffffff;
+    --line: #e7e0d4;
+    --accent: #ff5c1c;
+    --accent-soft: #ffe9de;
+    --radius: 20px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'IBM Plex Sans Thai', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .serif { font-family: 'Instrument Serif', Georgia, serif; }
+  .container { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+
+  /* ---------- Nav ---------- */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(250, 247, 242, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid transparent;
+    transition: border-color .3s;
+  }
+  nav.scrolled { border-bottom-color: var(--line); }
+  .nav-inner {
+    display: flex; align-items: center; justify-content: space-between;
+    height: 68px;
+  }
+  .logo {
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 700; font-size: 19px; letter-spacing: -0.3px;
+    text-decoration: none; color: var(--ink);
+  }
+  .logo-mark {
+    width: 30px; height: 30px; border-radius: 9px;
+    background: var(--ink);
+    display: grid; place-items: center;
+  }
+  .logo-mark span {
+    display: flex; gap: 2.5px; align-items: center; height: 14px;
+  }
+  .logo-mark i {
+    width: 2.5px; background: var(--bg); border-radius: 2px; display: block;
+  }
+  .logo-mark i:nth-child(1){height:6px} .logo-mark i:nth-child(2){height:13px}
+  .logo-mark i:nth-child(3){height:9px} .logo-mark i:nth-child(4){height:5px}
+  .nav-links { display: flex; gap: 32px; align-items: center; }
+  .nav-links a {
+    color: var(--ink-soft); text-decoration: none; font-size: 15px; font-weight: 500;
+    transition: color .2s;
+  }
+  .nav-links a:hover { color: var(--ink); }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 12px 24px; border-radius: 999px;
+    font-family: inherit; font-size: 15px; font-weight: 600;
+    text-decoration: none; cursor: pointer; border: none;
+    transition: transform .15s, box-shadow .15s, background .2s;
+  }
+  .btn-dark { background: var(--ink); color: var(--bg); }
+  .btn-dark:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(23,20,16,.18); }
+  .btn-light { background: var(--card); color: var(--ink); border: 1px solid var(--line); }
+  .btn-light:hover { background: var(--bg-soft); }
+  .btn-sm { padding: 9px 18px; font-size: 14px; }
+
+  /* ---------- Hero ---------- */
+  .hero { padding: 90px 0 60px; text-align: center; position: relative; overflow: hidden; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 999px; padding: 7px 16px;
+    font-size: 13.5px; font-weight: 500; color: var(--ink-soft);
+    margin-bottom: 28px;
+  }
+  .pill .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+  h1 {
+    font-size: clamp(42px, 7vw, 76px);
+    line-height: 1.08; letter-spacing: -1.5px; font-weight: 700;
+    max-width: 800px; margin: 0 auto 24px;
+  }
+  h1 em { font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; color: var(--accent); letter-spacing: 0; }
+  .hero p.sub {
+    font-size: 19px; color: var(--ink-soft); max-width: 560px;
+    margin: 0 auto 36px; font-weight: 300;
+  }
+  .hero-ctas { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-bottom: 18px; }
+  .hero-note { font-size: 13.5px; color: var(--ink-faint); }
+
+  /* ---------- Live demo card ---------- */
+  .demo-wrap { margin: 64px auto 0; max-width: 720px; position: relative; }
+  .demo-card {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 24px; padding: 28px;
+    box-shadow: 0 24px 60px -24px rgba(23,20,16,.18);
+    text-align: left;
+  }
+  .demo-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 18px;
+  }
+  .demo-title { font-size: 14px; font-weight: 600; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 1px; }
+  .demo-lang {
+    font-size: 13px; color: var(--ink-soft); background: var(--bg-soft);
+    border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px;
+    font-family: inherit; cursor: pointer;
+  }
+  .demo-output {
+    min-height: 120px; font-size: 18px; line-height: 1.7;
+    color: var(--ink); padding: 4px 2px 16px;
+  }
+  .demo-output .placeholder { color: var(--ink-faint); font-weight: 300; }
+  .demo-output .interim { color: var(--ink-faint); }
+  .demo-bar {
+    display: flex; align-items: center; gap: 16px;
+    border-top: 1px solid var(--line); padding-top: 18px;
+  }
+  .mic-btn {
+    width: 56px; height: 56px; border-radius: 50%; border: none; cursor: pointer;
+    background: var(--ink); color: var(--bg);
+    display: grid; place-items: center; flex-shrink: 0;
+    transition: transform .15s, background .2s;
+  }
+  .mic-btn:hover { transform: scale(1.05); }
+  .mic-btn.recording { background: var(--accent); animation: micPulse 1.6s infinite; }
+  @keyframes micPulse {
+    0%,100% { box-shadow: 0 0 0 0 rgba(255,92,28,.35); }
+    50% { box-shadow: 0 0 0 14px rgba(255,92,28,0); }
+  }
+  .mic-btn svg { width: 22px; height: 22px; }
+  .wave { display: flex; align-items: center; gap: 4px; height: 36px; flex: 1; }
+  .wave i {
+    width: 4px; border-radius: 3px; background: var(--line);
+    height: 8px; transition: background .3s;
+  }
+  .wave.active i { background: var(--accent); animation: waveBounce 1s ease-in-out infinite; }
+  .wave i:nth-child(odd) { animation-delay: .15s; }
+  .wave i:nth-child(3n) { animation-delay: .3s; }
+  .wave i:nth-child(4n) { animation-delay: .45s; }
+  @keyframes waveBounce {
+    0%,100% { height: 8px; } 50% { height: 30px; }
+  }
+  .demo-hint { font-size: 13px; color: var(--ink-faint); white-space: nowrap; }
+  .demo-actions { display: flex; gap: 8px; }
+  .icon-btn {
+    background: var(--bg-soft); border: 1px solid var(--line); border-radius: 10px;
+    width: 38px; height: 38px; display: grid; place-items: center; cursor: pointer;
+    color: var(--ink-soft); transition: background .2s;
+  }
+  .icon-btn:hover { background: var(--accent-soft); color: var(--accent); }
+  .icon-btn svg { width: 16px; height: 16px; }
+
+  /* ---------- Logos ---------- */
+  .logos { padding: 70px 0 30px; text-align: center; }
+  .logos p { font-size: 13px; text-transform: uppercase; letter-spacing: 2px; color: var(--ink-faint); margin-bottom: 28px; }
+  .logo-row {
+    display: flex; justify-content: center; gap: 48px; flex-wrap: wrap;
+    font-weight: 700; font-size: 20px; color: var(--ink-faint); opacity: .55;
+  }
+  .logo-row span { font-family: 'Instrument Serif', serif; }
+
+  /* ---------- Sections ---------- */
+  section { padding: 90px 0; }
+  .section-label {
+    font-size: 13px; text-transform: uppercase; letter-spacing: 2px;
+    color: var(--accent); font-weight: 600; margin-bottom: 14px;
+  }
+  h2 {
+    font-size: clamp(30px, 4.5vw, 46px); line-height: 1.15;
+    letter-spacing: -1px; font-weight: 700; margin-bottom: 16px;
+  }
+  h2 em { font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; color: var(--accent); }
+  .section-sub { font-size: 17px; color: var(--ink-soft); max-width: 520px; font-weight: 300; }
+  .center { text-align: center; }
+  .center .section-sub { margin: 0 auto; }
+
+  .feature-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 56px;
+  }
+  .feature-card {
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 32px 28px; transition: transform .2s, box-shadow .2s;
+  }
+  .feature-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px -20px rgba(23,20,16,.15); }
+  .feature-icon {
+    width: 46px; height: 46px; border-radius: 13px;
+    background: var(--accent-soft); color: var(--accent);
+    display: grid; place-items: center; margin-bottom: 20px;
+  }
+  .feature-icon svg { width: 22px; height: 22px; }
+  .feature-card h3 { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+  .feature-card p { font-size: 14.5px; color: var(--ink-soft); font-weight: 300; }
+
+  /* ---------- Steps ---------- */
+  .steps { background: var(--ink); color: var(--bg); border-radius: 32px; margin: 0 24px; }
+  .steps .container { padding-top: 90px; padding-bottom: 90px; }
+  .steps .section-label { color: #ff9d73; }
+  .steps h2 { color: var(--bg); }
+  .steps .section-sub { color: #b8b0a2; }
+  .step-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; margin-top: 60px; }
+  .step-num {
+    font-family: 'Instrument Serif', serif; font-size: 52px; color: #ff9d73;
+    line-height: 1; margin-bottom: 16px;
+  }
+  .step h3 { font-size: 19px; margin-bottom: 8px; font-weight: 600; }
+  .step p { font-size: 14.5px; color: #b8b0a2; font-weight: 300; }
+
+  /* ---------- Testimonials ---------- */
+  .quote-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 56px; }
+  .quote-card {
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 28px; display: flex; flex-direction: column; gap: 18px;
+  }
+  .quote-card blockquote { font-size: 15.5px; line-height: 1.7; color: var(--ink); flex: 1; }
+  .quote-who { display: flex; align-items: center; gap: 12px; }
+  .avatar {
+    width: 40px; height: 40px; border-radius: 50%;
+    display: grid; place-items: center; font-weight: 600; font-size: 15px; color: #fff;
+  }
+  .quote-who b { display: block; font-size: 14px; font-weight: 600; }
+  .quote-who small { font-size: 12.5px; color: var(--ink-faint); }
+
+  /* ---------- Pricing ---------- */
+  .price-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 56px; align-items: stretch; }
+  .price-card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 24px;
+    padding: 36px 30px; display: flex; flex-direction: column;
+  }
+  .price-card.featured { border: 2px solid var(--ink); position: relative; box-shadow: 0 24px 50px -24px rgba(23,20,16,.25); }
+  .badge {
+    position: absolute; top: -13px; left: 50%; transform: translateX(-50%);
+    background: var(--accent); color: #fff; font-size: 12px; font-weight: 600;
+    padding: 4px 14px; border-radius: 999px; white-space: nowrap;
+  }
+  .price-card h3 { font-size: 17px; font-weight: 600; margin-bottom: 6px; }
+  .price-card .desc { font-size: 13.5px; color: var(--ink-faint); margin-bottom: 22px; font-weight: 300; }
+  .price { font-size: 44px; font-weight: 700; letter-spacing: -1.5px; margin-bottom: 4px; }
+  .price small { font-size: 15px; font-weight: 400; color: var(--ink-faint); letter-spacing: 0; }
+  .price-card ul { list-style: none; margin: 26px 0 30px; flex: 1; display: flex; flex-direction: column; gap: 12px; }
+  .price-card li { font-size: 14.5px; color: var(--ink-soft); display: flex; gap: 10px; align-items: flex-start; }
+  .price-card li::before { content: "✓"; color: var(--accent); font-weight: 700; flex-shrink: 0; }
+
+  /* ---------- FAQ ---------- */
+  .faq { max-width: 720px; margin: 56px auto 0; }
+  details {
+    background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+    margin-bottom: 12px; overflow: hidden;
+  }
+  summary {
+    padding: 20px 24px; cursor: pointer; font-weight: 600; font-size: 15.5px;
+    list-style: none; display: flex; justify-content: space-between; align-items: center;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: "+"; font-size: 22px; font-weight: 300; color: var(--ink-faint); transition: transform .2s; }
+  details[open] summary::after { transform: rotate(45deg); }
+  details p { padding: 0 24px 20px; font-size: 14.5px; color: var(--ink-soft); font-weight: 300; }
+
+  /* ---------- CTA ---------- */
+  .final-cta { text-align: center; padding: 110px 0; }
+  .final-cta h2 { font-size: clamp(36px, 6vw, 60px); max-width: 700px; margin: 0 auto 20px; }
+
+  /* ---------- Footer ---------- */
+  footer { border-top: 1px solid var(--line); padding: 48px 0; }
+  .footer-inner {
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;
+  }
+  .footer-links { display: flex; gap: 28px; }
+  .footer-links a { color: var(--ink-faint); text-decoration: none; font-size: 14px; }
+  .footer-links a:hover { color: var(--ink); }
+  footer small { color: var(--ink-faint); font-size: 13px; }
+
+  /* ---------- Reveal animation ---------- */
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity .7s ease, transform .7s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+
+  @media (max-width: 900px) {
+    .feature-grid, .quote-grid, .price-grid, .step-grid { grid-template-columns: 1fr; }
+    .nav-links a:not(.btn) { display: none; }
+    .steps { margin: 0 12px; }
+    section { padding: 64px 0; }
+  }
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <div class="container nav-inner">
+    <a class="logo" href="#">
+      <span class="logo-mark"><span><i></i><i></i><i></i><i></i></span></span>
+      VoiceFlow
+    </a>
+    <div class="nav-links">
+      <a href="#features">ฟีเจอร์</a>
+      <a href="#how">วิธีใช้งาน</a>
+      <a href="#pricing">ราคา</a>
+      <a href="#faq">คำถามที่พบบ่อย</a>
+      <a href="#demo" class="btn btn-dark btn-sm">ลองเลย ฟรี</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="container">
+    <div class="pill"><span class="dot"></span> รองรับภาษาไทยและอีก 100+ ภาษา</div>
+    <h1>อย่าพิมพ์เลย<br><em>แค่พูดก็พอ</em></h1>
+    <p class="sub">VoiceFlow เปลี่ยนเสียงพูดของคุณเป็นข้อความที่เรียบเรียงเรียบร้อยแล้ว — เร็วกว่าพิมพ์ 4 เท่า ใช้ได้ในทุกแอปที่คุณใช้อยู่</p>
+    <div class="hero-ctas">
+      <a href="#demo" class="btn btn-dark">ลองพูดตอนนี้เลย
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+      <a href="#pricing" class="btn btn-light">ดูแพ็กเกจ</a>
+    </div>
+    <div class="hero-note">ฟรี ไม่ต้องใช้บัตรเครดิต · ใช้งานได้ทันทีในเบราว์เซอร์</div>
+
+    <!-- Live dictation demo -->
+    <div class="demo-wrap" id="demo">
+      <div class="demo-card">
+        <div class="demo-head">
+          <div class="demo-title">ลองเดโม่สด</div>
+          <select class="demo-lang" id="langSelect">
+            <option value="th-TH" selected>ไทย 🇹🇭</option>
+            <option value="en-US">English 🇺🇸</option>
+            <option value="ja-JP">日本語 🇯🇵</option>
+            <option value="zh-CN">中文 🇨🇳</option>
+          </select>
+        </div>
+        <div class="demo-output" id="output"><span class="placeholder">กดปุ่มไมค์ แล้วพูดได้เลย ข้อความจะปรากฏตรงนี้…</span></div>
+        <div class="demo-bar">
+          <button class="mic-btn" id="micBtn" aria-label="เริ่มพูด">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+              <line x1="12" y1="19" x2="12" y2="22"/>
+            </svg>
+          </button>
+          <div class="wave" id="wave">
+            <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+          </div>
+          <span class="demo-hint" id="hint">พร้อมฟังแล้ว</span>
+          <div class="demo-actions">
+            <button class="icon-btn" id="copyBtn" title="คัดลอกข้อความ">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+            <button class="icon-btn" id="clearBtn" title="ล้างข้อความ">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="logos">
+  <div class="container">
+    <p>ทีมงานจากบริษัทชั้นนำใช้ VoiceFlow ทุกวัน</p>
+    <div class="logo-row">
+      <span>Notion</span><span>Slack</span><span>Figma</span><span>LINE MAN</span><span>Grab</span><span>SCB 10X</span>
+    </div>
+  </div>
+</div>
+
+<section id="features">
+  <div class="container">
+    <div class="section-label reveal">ฟีเจอร์</div>
+    <h2 class="reveal">พูดแบบธรรมชาติ<br>ได้ข้อความที่<em>พร้อมส่ง</em></h2>
+    <p class="section-sub reveal">AI จะตัดคำว่า "เอ่อ" "แบบว่า" ออกให้ เติมวรรคตอน และเรียบเรียงให้อ่านลื่นโดยอัตโนมัติ</p>
+    <div class="feature-grid">
+      <div class="feature-card reveal">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v18M8 7v10M4 10v4M16 7v10M20 10v4"/></svg>
+        </div>
+        <h3>เร็วกว่าพิมพ์ 4 เท่า</h3>
+        <p>คนเราพูดได้เฉลี่ย 150 คำต่อนาที แต่พิมพ์ได้แค่ 40 คำ ปล่อยให้เสียงทำงานแทนนิ้วของคุณ</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z"/></svg>
+        </div>
+        <h3>AI เรียบเรียงให้อัตโนมัติ</h3>
+        <p>ตัดคำฟุ่มเฟือย แก้คำผิด ใส่วรรคตอน และจัดย่อหน้าให้เอง — ข้อความที่ได้พร้อมใช้งานทันที</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        </div>
+        <h3>100+ ภาษา สลับได้ทันที</h3>
+        <p>พูดไทยสลับอังกฤษในประโยคเดียวกันก็เข้าใจ รองรับทุกภาษาที่คุณใช้ทำงาน</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M8 20v2M16 20v2"/></svg>
+        </div>
+        <h3>ใช้ได้ทุกแอป</h3>
+        <p>Email, LINE, Slack, Notion, Word — ที่ไหนพิมพ์ได้ ที่นั่นพูดได้ ไม่ต้องสลับหน้าจอไปมา</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <h3>ความเป็นส่วนตัวมาก่อน</h3>
+        <p>เสียงของคุณถูกประมวลผลแบบเข้ารหัส ไม่ถูกนำไปเทรนโมเดล และลบทันทีหลังแปลงเสร็จ</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>
+        </div>
+        <h3>คลังคำเฉพาะของคุณ</h3>
+        <p>สอนชื่อเฉพาะ ศัพท์เทคนิค หรือชื่อลูกค้าให้ระบบจำได้ พูดครั้งเดียวถูกทุกครั้ง</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="steps" id="how">
+  <div class="container">
+    <div class="section-label reveal">วิธีใช้งาน</div>
+    <h2 class="reveal">เริ่มได้ใน 3 ขั้นตอน</h2>
+    <p class="section-sub reveal">ไม่ต้องเรียนรู้อะไรใหม่ — แค่กดแล้วพูด</p>
+    <div class="step-grid">
+      <div class="step reveal">
+        <div class="step-num">1</div>
+        <h3>กดปุ่มลัด</h3>
+        <p>กด Fn ค้างไว้ (หรือปุ่มที่คุณตั้งเอง) ในแอปไหนก็ได้ที่มีช่องพิมพ์ข้อความ</p>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">2</div>
+        <h3>พูดตามธรรมชาติ</h3>
+        <p>พูดเหมือนคุยกับเพื่อน ไม่ต้องเว้นจังหวะ ไม่ต้องบอกวรรคตอน AI จัดการให้หมด</p>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">3</div>
+        <h3>ข้อความปรากฏทันที</h3>
+        <p>ปล่อยปุ่ม ข้อความที่เรียบเรียงแล้วจะพิมพ์ลงตรงเคอร์เซอร์ของคุณเลย</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section>
+  <div class="container">
+    <div class="center">
+      <div class="section-label reveal">เสียงจากผู้ใช้</div>
+      <h2 class="reveal">คนที่เลิกพิมพ์แล้ว<br>ไม่มีใคร<em>กลับไปพิมพ์อีก</em></h2>
+    </div>
+    <div class="quote-grid">
+      <div class="quote-card reveal">
+        <blockquote>"ตอบอีเมลลูกค้า 30 ฉบับเสร็จก่อนเที่ยง จากที่เคยใช้เวลาทั้งวัน ตอนนี้พูดไปเดินไปได้เลย"</blockquote>
+        <div class="quote-who">
+          <div class="avatar" style="background:#ff5c1c">น</div>
+          <div><b>นนท์ ธีรวัฒน์</b><small>Sales Director, บริษัทอสังหาฯ</small></div>
+        </div>
+      </div>
+      <div class="quote-card reveal">
+        <blockquote>"เขียนบทความยาว 2,000 คำโดยไม่แตะคีย์บอร์ดเลย ความคิดไหลลื่นกว่าเดิมมากเพราะไม่ต้องหยุดพิมพ์"</blockquote>
+        <div class="quote-who">
+          <div class="avatar" style="background:#171410">พ</div>
+          <div><b>พลอย ชนิดา</b><small>Content Creator</small></div>
+        </div>
+      </div>
+      <div class="quote-card reveal">
+        <blockquote>"ผมมีปัญหา RSI ที่ข้อมือ VoiceFlow ทำให้ผมกลับมาทำงานเต็มวันได้อีกครั้ง เปลี่ยนชีวิตจริง ๆ"</blockquote>
+        <div class="quote-who">
+          <div class="avatar" style="background:#8a8275">ก</div>
+          <div><b>กันต์ ศุภกร</b><small>Software Engineer</small></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="pricing" style="background: var(--bg-soft); border-radius: 32px; margin: 0 24px;">
+  <div class="container">
+    <div class="center">
+      <div class="section-label reveal">ราคา</div>
+      <h2 class="reveal">เริ่มฟรี อัปเกรดเมื่อพร้อม</h2>
+      <p class="section-sub reveal">ทุกแพ็กเกจยกเลิกได้ทุกเมื่อ ไม่มีข้อผูกมัด</p>
+    </div>
+    <div class="price-grid">
+      <div class="price-card reveal">
+        <h3>Free</h3>
+        <div class="desc">สำหรับลองใช้งาน</div>
+        <div class="price">฿0<small>/เดือน</small></div>
+        <ul>
+          <li>2,000 คำต่อสัปดาห์</li>
+          <li>รองรับทุกภาษา</li>
+          <li>ใช้ได้ทุกแอป</li>
+          <li>AI เรียบเรียงพื้นฐาน</li>
+        </ul>
+        <a href="#demo" class="btn btn-light" style="justify-content:center">เริ่มใช้ฟรี</a>
+      </div>
+      <div class="price-card featured reveal">
+        <div class="badge">ยอดนิยม</div>
+        <h3>Pro</h3>
+        <div class="desc">สำหรับคนทำงานจริงจัง</div>
+        <div class="price">฿390<small>/เดือน</small></div>
+        <ul>
+          <li>พูดได้ไม่จำกัด</li>
+          <li>AI เรียบเรียงขั้นสูง + ปรับโทนได้</li>
+          <li>คลังคำเฉพาะส่วนตัว</li>
+          <li>Snippet คำสั่งเสียง</li>
+          <li>ซัพพอร์ตแบบด่วน</li>
+        </ul>
+        <a href="#demo" class="btn btn-dark" style="justify-content:center">ทดลอง Pro ฟรี 14 วัน</a>
+      </div>
+      <div class="price-card reveal">
+        <h3>Team</h3>
+        <div class="desc">สำหรับทีมและองค์กร</div>
+        <div class="price">฿290<small>/คน/เดือน</small></div>
+        <ul>
+          <li>ทุกอย่างใน Pro</li>
+          <li>คลังคำร่วมของทีม</li>
+          <li>จัดการสิทธิ์และบิลรวม</li>
+          <li>SSO + มาตรฐานความปลอดภัยองค์กร</li>
+        </ul>
+        <a href="#demo" class="btn btn-light" style="justify-content:center">คุยกับฝ่ายขาย</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="container">
+    <div class="center">
+      <div class="section-label reveal">คำถามที่พบบ่อย</div>
+      <h2 class="reveal">สงสัยอะไร ถามได้</h2>
+    </div>
+    <div class="faq">
+      <details class="reveal">
+        <summary>รองรับภาษาไทยดีแค่ไหน?</summary>
+        <p>ดีมาก — โมเดลของเราเทรนกับเสียงภาษาไทยหลายแสนชั่วโมง เข้าใจทั้งภาษาพูด คำสแลง และการพูดไทยสลับอังกฤษในประโยคเดียวกัน</p>
+      </details>
+      <details class="reveal">
+        <summary>ต้องพูดชัดหรือพูดช้าไหม?</summary>
+        <p>ไม่ต้องเลย พูดเร็ว พูดติดขัด มี "เอ่อ" "อืม" ได้ตามธรรมชาติ AI จะตัดส่วนเกินและเรียบเรียงให้เอง</p>
+      </details>
+      <details class="reveal">
+        <summary>ข้อมูลเสียงของฉันปลอดภัยไหม?</summary>
+        <p>เสียงถูกเข้ารหัสระหว่างส่ง ประมวลผลแล้วลบทันที เราไม่เก็บเสียงของคุณและไม่นำไปเทรนโมเดลโดยไม่ได้รับอนุญาต</p>
+      </details>
+      <details class="reveal">
+        <summary>ใช้ได้บนอุปกรณ์อะไรบ้าง?</summary>
+        <p>Mac, Windows, iPhone และ Android — ซิงก์คลังคำและการตั้งค่าข้ามอุปกรณ์ให้อัตโนมัติ</p>
+      </details>
+      <details class="reveal">
+        <summary>ยกเลิกได้ทุกเมื่อจริงไหม?</summary>
+        <p>จริง ยกเลิกได้ในคลิกเดียวจากหน้าตั้งค่า ไม่ต้องโทร ไม่ต้องแชทกับใคร และใช้ได้ต่อจนจบรอบบิล</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<div class="final-cta">
+  <div class="container">
+    <h2 class="reveal">พร้อมจะ<em>เลิกพิมพ์</em><br>แล้วหรือยัง?</h2>
+    <p class="section-sub reveal" style="margin: 0 auto 32px;">เริ่มใช้ฟรีวันนี้ ไม่ต้องใช้บัตรเครดิต</p>
+    <a href="#demo" class="btn btn-dark reveal" style="font-size: 17px; padding: 16px 34px;">ลองพูดตอนนี้เลย
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </a>
+  </div>
+</div>
+
+<footer>
+  <div class="container footer-inner">
+    <a class="logo" href="#">
+      <span class="logo-mark"><span><i></i><i></i><i></i><i></i></span></span>
+      VoiceFlow
+    </a>
+    <div class="footer-links">
+      <a href="#features">ฟีเจอร์</a>
+      <a href="#pricing">ราคา</a>
+      <a href="#faq">FAQ</a>
+      <a href="#">ความเป็นส่วนตัว</a>
+    </div>
+    <small>© 2026 VoiceFlow — Demo หน้าเว็บสไตล์ Wispr Flow</small>
+  </div>
+</footer>
+
+<script>
+  // Sticky nav border
+  const nav = document.getElementById('nav');
+  addEventListener('scroll', () => nav.classList.toggle('scrolled', scrollY > 10));
+
+  // Scroll reveal
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  // ---- Live dictation demo (Web Speech API) ----
+  const micBtn = document.getElementById('micBtn');
+  const output = document.getElementById('output');
+  const wave = document.getElementById('wave');
+  const hint = document.getElementById('hint');
+  const langSelect = document.getElementById('langSelect');
+  const copyBtn = document.getElementById('copyBtn');
+  const clearBtn = document.getElementById('clearBtn');
+
+  let finalText = '';
+  let recognizing = false;
+  let recognition = null;
+
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  function render(interim = '') {
+    if (!finalText && !interim) {
+      output.innerHTML = '<span class="placeholder">กดปุ่มไมค์ แล้วพูดได้เลย ข้อความจะปรากฏตรงนี้…</span>';
+      return;
+    }
+    output.innerHTML = '';
+    output.appendChild(document.createTextNode(finalText));
+    if (interim) {
+      const span = document.createElement('span');
+      span.className = 'interim';
+      span.textContent = interim;
+      output.appendChild(span);
+    }
+  }
+
+  function setRecording(on) {
+    recognizing = on;
+    micBtn.classList.toggle('recording', on);
+    wave.classList.toggle('active', on);
+    hint.textContent = on ? 'กำลังฟัง… พูดได้เลย' : 'พร้อมฟังแล้ว';
+  }
+
+  function startRecognition() {
+    recognition = new SR();
+    recognition.lang = langSelect.value;
+    recognition.continuous = true;
+    recognition.interimResults = true;
+
+    recognition.onresult = (e) => {
+      let interim = '';
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        const t = e.results[i][0].transcript;
+        if (e.results[i].isFinal) finalText += t + ' ';
+        else interim += t;
+      }
+      render(interim);
+    };
+    recognition.onerror = (e) => {
+      setRecording(false);
+      if (e.error === 'not-allowed') hint.textContent = 'กรุณาอนุญาตให้ใช้ไมโครโฟน';
+      else if (e.error !== 'aborted') hint.textContent = 'เกิดข้อผิดพลาด ลองอีกครั้ง';
+    };
+    recognition.onend = () => { if (recognizing) recognition.start(); };
+    recognition.start();
+    setRecording(true);
+  }
+
+  micBtn.addEventListener('click', () => {
+    if (!SR) {
+      hint.textContent = 'เบราว์เซอร์นี้ไม่รองรับ — ลองใช้ Chrome';
+      return;
+    }
+    if (recognizing) {
+      recognizing = false;
+      recognition.stop();
+      setRecording(false);
+    } else {
+      startRecognition();
+    }
+  });
+
+  langSelect.addEventListener('change', () => {
+    if (recognizing) { recognizing = false; recognition.stop(); setRecording(false); }
+  });
+
+  copyBtn.addEventListener('click', async () => {
+    if (!finalText) return;
+    await navigator.clipboard.writeText(finalText.trim());
+    hint.textContent = 'คัดลอกแล้ว ✓';
+    setTimeout(() => hint.textContent = recognizing ? 'กำลังฟัง… พูดได้เลย' : 'พร้อมฟังแล้ว', 1500);
+  });
+
+  clearBtn.addEventListener('click', () => { finalText = ''; render(); });
+</script>
+</body>
+</html>

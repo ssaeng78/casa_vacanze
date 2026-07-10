@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>คอร์สปฏิบัติธรรม — ศูนย์ปฏิบัติธรรม</title>
+  <meta name="description" content="ตารางคอร์สปฏิบัติธรรมทั้งหมด คอร์ส 9 วัน คอร์สระยะสั้น คอร์สออนไลน์ คอร์สเทศกาล และคอร์สสาขาทั่วประเทศ" />
+
+  <!-- Fonts: Noto Serif Thai (หัวข้อ) + Sarabun (เนื้อหา) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@400;500;600;700&family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- ================= Header ================= -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="#" class="logo">
+        <span class="logo-mark">☸</span>
+        <span class="logo-text">ศูนย์ปฏิบัติธรรม</span>
+      </a>
+      <nav class="main-nav" id="mainNav">
+        <a href="#courses">คอร์สทั้งหมด</a>
+        <a href="#steps">วิธีสมัคร</a>
+        <a href="#faq">คำถามที่พบบ่อย</a>
+        <a href="#contact">ติดต่อ</a>
+      </nav>
+      <button class="nav-toggle" id="navToggle" aria-label="เปิดเมนู" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ================= Hero ================= -->
+  <section class="hero">
+    <div class="container hero-inner">
+      <div class="hero-content">
+        <p class="hero-eyebrow">สงบกาย · สงบใจ · เจริญสติ</p>
+        <h1>คอร์สปฏิบัติธรรม</h1>
+        <p class="hero-lead">
+          พื้นที่แห่งความสงบสำหรับทุกคน ไม่ว่าคุณจะเพิ่งเริ่มต้น
+          หรือปฏิบัติมานานแล้ว เรามีคอร์สที่เหมาะกับจังหวะชีวิตของคุณ
+          ทั้งที่ศูนย์ ที่สาขาทั่วประเทศ และแบบออนไลน์
+        </p>
+        <div class="hero-actions">
+          <a href="#courses" class="btn btn-primary">ดูคอร์สทั้งหมด</a>
+          <a href="#steps" class="btn btn-outline">ดูขั้นตอนการสมัคร</a>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <!-- รูป hero — วางไฟล์จริงที่ images/hero-teaching.jpg (src กำหนดใน js/data.js) -->
+        <figure class="photo hero-photo" id="heroPhoto">
+          <span class="photo-fallback">
+            <span class="placeholder-icon">🪷</span>
+            <span class="placeholder-label">รูปภาพบรรยากาศศูนย์ปฏิบัติธรรม</span>
+          </span>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= หมวดคอร์ส (Cards) ================= -->
+  <section class="section" id="categories">
+    <div class="container">
+      <div class="section-head">
+        <h2>หมวดคอร์สทั้งหมด</h2>
+        <p>เลือกดูตามรูปแบบที่เหมาะกับเวลาและประสบการณ์ของคุณ</p>
+      </div>
+      <div class="category-grid" id="categoryGrid">
+        <!-- render จาก js/data.js -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= คอร์สทั้งหมด + Filter Tabs ================= -->
+  <section class="section section-alt" id="courses">
+    <div class="container">
+      <div class="section-head">
+        <h2>คอร์สที่เปิดรับสมัคร</h2>
+        <p>กดเลือกหมวดเพื่อกรองคอร์สที่ต้องการ</p>
+      </div>
+
+      <div class="filter-tabs" id="filterTabs" role="tablist">
+        <button class="tab active" data-filter="nine-day" role="tab" aria-selected="true">คอร์ส 9 วัน</button>
+        <button class="tab" data-filter="short" role="tab" aria-selected="false">คอร์ส 2–4 วัน</button>
+        <button class="tab" data-filter="online" role="tab" aria-selected="false">คอร์สออนไลน์</button>
+        <button class="tab" data-filter="festival" role="tab" aria-selected="false">คอร์สเทศกาล</button>
+        <button class="tab" data-filter="branch" role="tab" aria-selected="false">คอร์สสาขา</button>
+      </div>
+
+      <!-- รายการคอร์สของหมวดที่เลือก (บางหมวดแยกกลุ่มย่อย คนใหม่/คนเก่า) -->
+      <div id="courseList">
+        <!-- render จาก js/data.js -->
+      </div>
+
+      <!-- ตารางสาขา (แสดงเมื่อเลือกแท็บ "สาขา") -->
+      <div class="branch-block" id="branchBlock">
+        <h3 class="branch-title">ศูนย์สาขาทั่วประเทศ</h3>
+        <div class="table-wrap">
+          <table class="branch-table">
+            <thead>
+              <tr>
+                <th>สาขา</th>
+                <th>จังหวัด</th>
+                <th>คอร์สที่เปิด</th>
+                <th>สถานะ</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="branchTableBody">
+              <!-- render จาก js/data.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= แกลเลอรีบรรยากาศ ================= -->
+  <section class="section" id="gallery">
+    <div class="container">
+      <div class="section-head">
+        <h2>บรรยากาศการปฏิบัติ</h2>
+        <p>ภาพบรรยากาศจากคอร์สปฏิบัติธรรมที่ผ่านมา</p>
+      </div>
+      <div class="gallery-grid" id="galleryGrid">
+        <!-- render จาก js/data.js -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= ขั้นตอนการสมัคร ================= -->
+  <section class="section section-alt" id="steps">
+    <div class="container">
+      <div class="section-head">
+        <h2>ขั้นตอนการสมัคร</h2>
+        <p>สมัครง่าย ๆ ใน 4 ขั้นตอน</p>
+      </div>
+      <div class="steps-grid" id="stepsGrid">
+        <!-- render จาก js/data.js -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FAQ ================= -->
+  <section class="section" id="faq">
+    <div class="container faq-container">
+      <div class="section-head">
+        <h2>คำถามที่พบบ่อย</h2>
+      </div>
+      <div class="faq-list" id="faqList">
+        <!-- render จาก js/data.js -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CTA ================= -->
+  <section class="section cta-section">
+    <div class="container cta-inner">
+      <h2>พร้อมเริ่มต้นการเดินทางภายในหรือยัง?</h2>
+      <p>ทุกคอร์สไม่มีค่าใช้จ่าย เปิดรับทุกท่านด้วยความเมตตา</p>
+      <a href="#courses" class="btn btn-light">ดูคอร์สทั้งหมด</a>
+    </div>
+  </section>
+
+  <!-- ================= Footer ================= -->
+  <footer class="site-footer" id="contact">
+    <div class="container footer-grid">
+      <div class="footer-col footer-about">
+        <p class="footer-logo">☸ <span id="footerSiteName">ศูนย์ปฏิบัติธรรม</span></p>
+        <p id="footerAddress">ที่อยู่ศูนย์ปฏิบัติธรรม</p>
+      </div>
+      <div class="footer-col">
+        <h4>เมนู</h4>
+        <a href="#courses">คอร์สทั้งหมด</a>
+        <a href="#steps">วิธีสมัคร</a>
+        <a href="#faq">คำถามที่พบบ่อย</a>
+      </div>
+      <div class="footer-col">
+        <h4>ติดต่อเรา</h4>
+        <p>โทร: <span id="footerPhone">-</span></p>
+        <p>อีเมล: <span id="footerEmail">-</span></p>
+        <p>LINE: <span id="footerLine">-</span></p>
+        <p><a href="#" id="footerFacebook" target="_blank" rel="noopener">Facebook Page</a></p>
+      </div>
+      <div class="footer-col">
+        <h4>เวลาทำการ</h4>
+        <p>ทุกวัน 08.00 – 17.00 น.</p>
+        <p class="footer-note">* ข้อมูลติดต่อเป็น placeholder<br />แก้ไขได้ที่ไฟล์ js/data.js</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="container">
+        <p>© 2569 ศูนย์ปฏิบัติธรรม — เว็บไซต์นี้จัดทำเพื่อเผยแผ่ธรรมะ ไม่มีวัตถุประสงค์ทางการค้า</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

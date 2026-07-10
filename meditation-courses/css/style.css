@@ -1,0 +1,663 @@
+/* ============================================================
+   คอร์สปฏิบัติธรรม — Stylesheet
+   โทน: ขาว ครีม เขียวอ่อน น้ำตาลอ่อน ทองอ่อน
+   ============================================================ */
+
+:root {
+  /* สีหลัก */
+  --cream: #faf6ee;
+  --cream-dark: #f3ecdd;
+  --white: #ffffff;
+  --green: #7d9174;
+  --green-dark: #5f7358;
+  --green-soft: #eef2ea;
+  --brown: #8a7357;
+  --brown-soft: #efe7da;
+  --gold: #c2a464;
+  --ink: #3d3a33;
+  --ink-soft: #6f6a5e;
+  --line: #e6ddcc;
+
+  /* สถานะคอร์ส */
+  --st-open-bg: #e7efe3;
+  --st-open-tx: #4d6b43;
+  --st-full-bg: #f4e4de;
+  --st-full-tx: #a05c46;
+  --st-closed-bg: #ecebe7;
+  --st-closed-tx: #8a857a;
+  --st-soon-bg: #f5eddb;
+  --st-soon-tx: #96793d;
+
+  /* Typography */
+  --font-head: "Noto Serif Thai", serif;
+  --font-body: "Sarabun", sans-serif;
+
+  --radius: 16px;
+  --shadow: 0 4px 24px rgba(90, 78, 55, 0.08);
+  --container: 1120px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.75;
+  color: var(--ink);
+  background: var(--cream);
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-head);
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--ink);
+}
+
+a { color: var(--green-dark); text-decoration: none; }
+img { max-width: 100%; display: block; }
+
+.container {
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ---------- ปุ่ม ---------- */
+.btn {
+  display: inline-block;
+  padding: 14px 32px;
+  border-radius: 999px;
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 500;
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.btn-primary {
+  background: var(--green);
+  color: var(--white);
+}
+.btn-primary:hover { background: var(--green-dark); }
+
+.btn-outline {
+  background: transparent;
+  color: var(--green-dark);
+  border-color: var(--green);
+}
+.btn-outline:hover { background: var(--green-soft); }
+
+.btn-light {
+  background: var(--white);
+  color: var(--green-dark);
+}
+.btn-light:hover { background: var(--cream-dark); }
+
+.btn-sm { padding: 10px 24px; font-size: 15px; }
+
+/* ---------- Header ---------- */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(250, 246, 238, 0.92);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--line);
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 68px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-head);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.logo-mark { color: var(--gold); font-size: 24px; }
+
+.main-nav { display: flex; gap: 28px; }
+.main-nav a {
+  font-size: 15.5px;
+  color: var(--ink-soft);
+  transition: color 0.2s;
+}
+.main-nav a:hover { color: var(--green-dark); }
+
+.nav-toggle {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+}
+.nav-toggle span {
+  width: 24px;
+  height: 2px;
+  background: var(--ink);
+  border-radius: 2px;
+  transition: 0.3s;
+}
+
+/* ---------- Hero ---------- */
+.hero {
+  background: linear-gradient(180deg, var(--cream) 0%, var(--cream-dark) 100%);
+  padding: 72px 0 88px;
+}
+
+.hero-inner {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 56px;
+  align-items: center;
+}
+
+.hero-eyebrow {
+  color: var(--gold);
+  font-weight: 500;
+  letter-spacing: 2px;
+  margin-bottom: 16px;
+}
+
+.hero h1 {
+  font-size: 52px;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.hero-lead {
+  font-size: 18px;
+  font-weight: 300;
+  color: var(--ink-soft);
+  max-width: 480px;
+  margin-bottom: 36px;
+}
+
+.hero-actions { display: flex; gap: 16px; flex-wrap: wrap; }
+
+/* ---------- รูปภาพ (photo + fallback) ----------
+   <img> แสดงเต็มกรอบแบบ object-fit: cover
+   ถ้าโหลดรูปไม่ได้ (.no-img) จะโชว์กรอบ placeholder แทน */
+.photo {
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+  border-radius: 24px;
+  background: var(--green-soft);
+}
+
+.photo img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.photo.no-img img { display: none; }
+
+.photo-fallback {
+  position: absolute;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border: 1.5px dashed var(--green);
+  border-radius: inherit;
+  color: var(--green-dark);
+  text-align: center;
+  padding: 24px;
+}
+.photo.no-img .photo-fallback { display: flex; }
+
+.hero-photo { height: 420px; }
+.placeholder-icon { font-size: 56px; }
+.placeholder-label { font-size: 14px; opacity: 0.75; }
+
+/* ---------- Section ทั่วไป ---------- */
+.section { padding: 88px 0; }
+.section-alt { background: var(--white); }
+
+.section-head {
+  text-align: center;
+  max-width: 640px;
+  margin: 0 auto 56px;
+}
+.section-head h2 { font-size: 34px; margin-bottom: 12px; }
+.section-head p { color: var(--ink-soft); font-weight: 300; }
+
+/* ---------- Category Cards ---------- */
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.category-card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 36px 28px;
+  text-align: center;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  cursor: pointer;
+}
+.category-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow);
+}
+.category-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--brown-soft);
+  font-size: 32px;
+  margin-bottom: 20px;
+}
+.category-card h3 { font-size: 20px; margin-bottom: 10px; }
+.category-card p { font-size: 15px; color: var(--ink-soft); font-weight: 300; }
+
+/* ---------- Filter Tabs ---------- */
+.filter-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 48px;
+}
+
+.tab {
+  padding: 10px 26px;
+  border-radius: 999px;
+  border: 1.5px solid var(--line);
+  background: var(--white);
+  color: var(--ink-soft);
+  font-family: var(--font-body);
+  font-size: 15.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.tab:hover { border-color: var(--green); color: var(--green-dark); }
+.tab.active {
+  background: var(--green);
+  border-color: var(--green);
+  color: var(--white);
+}
+
+/* ---------- กลุ่มย่อยในหมวด (คนใหม่ / คนเก่า) ---------- */
+.course-subgroup + .course-subgroup { margin-top: 56px; }
+
+.subgroup-head {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 22px;
+  padding-left: 16px;
+  border-left: 4px solid var(--gold);
+}
+
+.subgroup-title { font-size: 23px; }
+
+.subgroup-note {
+  font-size: 15px;
+  color: var(--ink-soft);
+  font-weight: 300;
+}
+
+/* ---------- Course Cards ---------- */
+.course-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+.course-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--cream);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.course-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow);
+}
+
+.course-card-img {
+  height: 170px;
+  border-radius: 0;
+  flex-shrink: 0;
+}
+.course-card-img .placeholder-icon { font-size: 36px; }
+.course-card-img .photo-fallback { border: none; border-bottom: 1px solid var(--line); }
+
+.course-card-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 26px 26px 28px;
+}
+
+.course-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.course-card h3 { font-size: 19.5px; line-height: 1.45; }
+
+.course-subtitle {
+  font-size: 14.5px;
+  color: var(--ink-soft);
+  font-weight: 300;
+  margin-bottom: 18px;
+}
+
+.course-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 15px;
+  color: var(--ink-soft);
+  margin-bottom: 22px;
+}
+.course-meta span { display: flex; align-items: baseline; gap: 8px; }
+.course-meta .meta-icon { color: var(--gold); font-size: 14px; }
+
+.course-card .btn { margin-top: auto; text-align: center; }
+
+/* ปุ่มของคอร์สที่สมัครไม่ได้ */
+.btn-disabled {
+  background: var(--st-closed-bg);
+  color: var(--st-closed-tx);
+  pointer-events: none;
+}
+
+/* ---------- Status Badge ---------- */
+.badge {
+  flex-shrink: 0;
+  padding: 4px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.badge-open   { background: var(--st-open-bg);   color: var(--st-open-tx); }
+.badge-full   { background: var(--st-full-bg);   color: var(--st-full-tx); }
+.badge-closed { background: var(--st-closed-bg); color: var(--st-closed-tx); }
+.badge-soon   { background: var(--st-soon-bg);   color: var(--st-soon-tx); }
+
+/* ---------- ตาราง ---------- */
+.table-wrap {
+  overflow-x: auto;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 720px;
+}
+
+th, td {
+  text-align: left;
+  padding: 16px 20px;
+  font-size: 15.5px;
+}
+
+thead th {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+  color: var(--ink-soft);
+  background: var(--cream-dark);
+  border-bottom: 1px solid var(--line);
+}
+
+tbody tr { border-bottom: 1px solid var(--line); }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: var(--cream); }
+
+td .table-link {
+  font-weight: 500;
+  color: var(--green-dark);
+}
+td .table-link:hover { text-decoration: underline; }
+td .table-link-disabled { color: var(--st-closed-tx); }
+
+.course-name-cell { font-weight: 500; }
+
+/* ---------- Branch Block ---------- */
+.branch-block { margin-top: 56px; }
+.branch-title {
+  font-size: 22px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* ---------- แกลเลอรีบรรยากาศ ---------- */
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.gallery-photo {
+  height: 220px;
+  border-radius: var(--radius);
+}
+.gallery-photo .placeholder-icon { font-size: 36px; }
+
+.gallery-caption {
+  margin-top: 10px;
+  font-size: 14.5px;
+  color: var(--ink-soft);
+  text-align: center;
+  font-weight: 300;
+}
+
+/* ---------- ขั้นตอนการสมัคร ---------- */
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 24px;
+}
+
+.step-card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 32px 26px;
+  position: relative;
+}
+
+.step-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--gold);
+  color: var(--white);
+  font-family: var(--font-head);
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 18px;
+}
+
+.step-card h3 { font-size: 18px; margin-bottom: 8px; }
+.step-card p { font-size: 15px; color: var(--ink-soft); font-weight: 300; }
+
+/* ---------- FAQ ---------- */
+.faq-container { max-width: 760px; }
+
+.faq-item {
+  background: var(--cream);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+
+.faq-question {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 24px;
+  background: none;
+  border: none;
+  font-family: var(--font-body);
+  font-size: 16.5px;
+  font-weight: 500;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+}
+
+.faq-icon {
+  flex-shrink: 0;
+  font-size: 20px;
+  color: var(--gold);
+  transition: transform 0.3s ease;
+}
+
+.faq-item.open .faq-icon { transform: rotate(45deg); }
+
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease;
+}
+.faq-answer-inner {
+  padding: 0 24px 22px;
+  font-size: 15.5px;
+  font-weight: 300;
+  color: var(--ink-soft);
+}
+
+/* ---------- CTA ---------- */
+.cta-section {
+  background: linear-gradient(135deg, var(--green-dark) 0%, var(--green) 100%);
+  padding: 72px 0;
+}
+.cta-inner { text-align: center; }
+.cta-inner h2 { color: var(--white); font-size: 30px; margin-bottom: 12px; }
+.cta-inner p { color: rgba(255, 255, 255, 0.85); margin-bottom: 28px; font-weight: 300; }
+
+/* ---------- Footer ---------- */
+.site-footer {
+  background: #33312b;
+  color: #cfcabd;
+  font-size: 15px;
+  font-weight: 300;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1.2fr 1fr;
+  gap: 40px;
+  padding: 64px 24px 48px;
+}
+
+.footer-logo {
+  font-family: var(--font-head);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--white);
+  margin-bottom: 14px;
+}
+
+.footer-col h4 {
+  color: var(--gold);
+  font-size: 16px;
+  margin-bottom: 16px;
+}
+
+.footer-col a {
+  display: block;
+  color: #cfcabd;
+  margin-bottom: 10px;
+  transition: color 0.2s;
+}
+.footer-col a:hover { color: var(--white); }
+.footer-col p { margin-bottom: 8px; }
+
+.footer-note { font-size: 13px; opacity: 0.6; margin-top: 14px; }
+
+.footer-bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 20px 0;
+  text-align: center;
+  font-size: 13.5px;
+  opacity: 0.65;
+}
+
+/* ============================================================
+   Responsive
+   ============================================================ */
+@media (max-width: 900px) {
+  .hero-inner { grid-template-columns: 1fr; gap: 40px; }
+  .hero { padding: 56px 0 64px; }
+  .hero h1 { font-size: 40px; }
+  .hero-photo { height: 260px; }
+  .footer-grid { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 720px) {
+  body { font-size: 16px; }
+  .section { padding: 64px 0; }
+  .section-head { margin-bottom: 40px; }
+  .section-head h2 { font-size: 27px; }
+
+  /* เมนูมือถือ */
+  .nav-toggle { display: flex; }
+  .main-nav {
+    display: none;
+    position: absolute;
+    top: 68px;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    gap: 0;
+    background: var(--cream);
+    border-bottom: 1px solid var(--line);
+    padding: 8px 0;
+  }
+  .main-nav.open { display: flex; }
+  .main-nav a { padding: 14px 24px; }
+
+  .hero h1 { font-size: 34px; }
+  .hero-actions .btn { width: 100%; text-align: center; }
+
+  .footer-grid { grid-template-columns: 1fr; gap: 32px; padding-top: 48px; }
+}
