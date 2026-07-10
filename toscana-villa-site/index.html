@@ -78,9 +78,19 @@
     .pano-valley-button:hover{background:#f0c15d;transform:translateY(-1px)}
     .wide-panorama{background:var(--cream)}
     @media(max-width:800px){.panorama{padding:6px 0}.pano-frame{width:calc(100% - 8px)}.pano-copy{left:18px;right:18px;bottom:74px}.pano-copy h2{font-size:clamp(2.3rem,13vw,4.2rem)}.pano-valley-button{right:16px;bottom:18px;padding:11px 13px;font-size:.82rem}.intro .thumbs{gap:6px}}
-    .guest-ratings{padding:10px 0 8px;background:var(--cream)}
-    .guest-ratings img{width:min(1180px,calc(100% - 40px));height:auto;margin:0 auto;object-fit:contain;box-shadow:var(--shadow)}
-    @media(max-width:800px){.guest-ratings{padding:6px 0}.guest-ratings img{width:calc(100% - 8px)}}
+    .guest-ratings{padding:10px 0 26px;background:var(--cream)}
+    .guest-ratings .ratings-frame{width:min(1180px,calc(100% - 40px));margin:0 auto}
+    .ratings-image-wrap{position:relative}
+    .guest-ratings img{width:100%;height:auto;object-fit:contain;box-shadow:var(--shadow)}
+    .ratings-link{position:absolute;bottom:5.8%;width:42.5%;height:7.2%;border-radius:12px}
+    .ratings-link.booking{left:7.15%}
+    .ratings-link.airbnb{right:7.15%}
+    .ratings-link:focus-visible{outline:3px solid rgba(195,145,53,.95);outline-offset:4px}
+    .ratings-copy{padding:30px 34px 0;text-align:center}
+    .ratings-copy p{max-width:980px;margin:0 auto;color:var(--muted);font-family:"Noto Serif Thai",serif;font-size:clamp(1rem,1.6vw,1.2rem);font-weight:300;line-height:1.9}
+    .ratings-highlights{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:24px auto 0;padding:0;list-style:none}
+    .ratings-highlights li{display:flex;align-items:center;justify-content:center;min-height:56px;padding:14px 18px;border:1px solid rgba(195,145,53,.38);border-radius:999px;background:#fffaf1;color:var(--ink);font:600 1.02rem/1.25 "Noto Sans Thai",sans-serif;text-align:center}
+    @media(max-width:800px){.guest-ratings{padding:6px 0 20px}.guest-ratings .ratings-frame{width:calc(100% - 8px)}.ratings-link{bottom:5.8%;width:42.5%;height:7.2%}.ratings-copy{padding:22px 12px 0}.ratings-copy p{font-size:.98rem;line-height:1.8}.ratings-highlights{grid-template-columns:1fr;gap:10px;margin-top:18px}.ratings-highlights li{min-height:52px;padding:12px 14px;font-size:.96rem;justify-content:flex-start}}
   </style>
 </head>
 <body>
@@ -88,7 +98,7 @@
   <main>
     <section class="hero" id="home"><img src="images/hero-main.png" alt="Italian Villa ท่ามกลางขุนเขาและความเป็นส่วนตัวของ Toscana Valley เขาใหญ่" fetchpriority="high"></section>
     <section class="intro" id="villa"><div class="wrap"><div class="section-head"><h2>Your Italian Escape<span>เมื่อเสน่ห์แห่งอิตาลี ที่เปลี่ยนทุกวันให้เป็นการพักผ่อนแสนพิเศษ</span></h2><a class="explore-prompt" href="#experience"><span>เริ่มสำรวจบ้านของเรา</span><small>Start to explore →</small></a></div><div class="thumbs"><figure class="thumb"><img src="images/card-living.png" alt="ห้องนั่งเล่นเพดานสูงของวิลล่า" loading="lazy"></figure><figure class="thumb"><img src="images/card-courtyard.png" alt="ทางเดินริมสระและสวนของวิลล่า" loading="lazy"></figure><figure class="thumb"><img src="images/card-pool.png" alt="สระว่ายน้ำส่วนตัวช่วงพระอาทิตย์ตก" loading="lazy"></figure><figure class="thumb"><img src="images/card-entrance.png" alt="ประตูทางเข้าวิลล่าและสวนดอกไม้" loading="lazy"></figure></div></div></section>
-    <section class="guest-ratings"><img src="images/guest-ratings.png" alt="คะแนนรีวิวจาก Booking.com และ Airbnb ของ Casa Vacanze" loading="lazy"></section>
+    <section class="guest-ratings"><div class="ratings-frame"><div class="ratings-image-wrap"><img src="images/guest-ratings.png" alt="คะแนนรีวิวจาก Booking.com และ Airbnb ของ Casa Vacanze" loading="lazy"><a class="ratings-link booking" href="https://www.booking.com/Share-ZfoHVl" target="_blank" rel="noopener noreferrer" aria-label="เปิดหน้า Booking ของวิลล่า"></a><a class="ratings-link airbnb" href="https://www.airbnb.com/rooms/1501277932846526777?check_in=2026-07-18&check_out=2026-07-24&guests=1&adults=1&s=67&unique_share_id=2c007d84-0261-47b5-bdb4-f7a1ea1b9213" target="_blank" rel="noopener noreferrer" aria-label="เปิดหน้า Airbnb ของวิลล่า"></a></div><div class="ratings-copy"><p>พักผ่อนอย่างสะดวกสบายในวิลล่าส่วนตัว พร้อมสวนสวย สระว่ายน้ำส่วนตัว อากาศบริสุทธิ์ และเส้นทางเดิน-วิ่งรอบหมู่บ้าน ท่ามกลางบรรยากาศเงียบสงบของ Toscana Valley เขาใหญ่</p><ul class="ratings-highlights"><li>Private Pool Villa</li><li>Mountain Fresh Air</li><li>Beautiful Garden</li><li>Comfortable Stay</li><li>Morning Walk &amp; Jogging Route</li><li>Delicious Breakfast</li><li>Peaceful Toscana Valley</li><li>5 Star Service</li></ul></div></div></section>
     <section class="panorama"><div class="pano-frame"><img src="images/toscana-view.jpg" alt="ทิวทัศน์ Toscana Valley และสนามกอล์ฟ" loading="lazy"><div class="pano-copy"><div class="kicker">Surrounded by nature</div><h2>Toscana Valley</h2><p>ตื่นขึ้นพร้อมวิวขุนเขา สูดอากาศบริสุทธิ์ และใช้ชีวิตอย่างช้า ๆ ท่ามกลางภูมิทัศน์ที่สวยงามในทุกฤดูกาล</p></div><a class="pano-valley-button" href="#gallery">Explore Toscana Valley</a></div></section>
     <section class="wide-panorama"><img src="images/toscana-sunset-panorama.jpg" alt="วิวพาโนรามา Toscana Valley และขุนเขาในช่วงพระอาทิตย์ตก" loading="lazy"></section>
     <section class="experience" id="experience"><div class="wrap experience-grid"><figure class="portrait"><img src="images/pool-vertical.jpg" alt="ห้องพักที่เชื่อมต่อกับสระว่ายน้ำส่วนตัว" loading="lazy"></figure><div><div class="kicker">Private Villa Experience</div><h2>Your own piece<br>of Tuscany</h2><p class="copy">บ้านพักที่ให้ความรู้สึกเหมือนยกชนบทอิตาลีมาไว้กลางเขาใหญ่ ทุกห้องเชื่อมโยงกับธรรมชาติ แสงแดด และสวนส่วนตัว พร้อมมุมพักผ่อนสำหรับทุกคนในครอบครัว</p><div class="facts"><div class="fact"><strong>360°</strong><span>วิวภูเขาและธรรมชาติโดยรอบ</span></div><div class="fact"><strong>Private</strong><span>สระว่ายน้ำและพื้นที่พักผ่อนส่วนตัว</span></div><div class="fact"><strong>Italian</strong><span>สถาปัตยกรรมและรายละเอียดเหนือกาลเวลา</span></div><div class="fact"><strong>Khao Yai</strong><span>ทำเลใจกลาง Toscana Valley</span></div></div><a class="cta" href="#gallery">ชมภาพเพิ่มเติม <span>→</span></a></div></div></section>
