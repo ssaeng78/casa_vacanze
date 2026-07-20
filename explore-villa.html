@@ -108,6 +108,7 @@
         gap: 22px;
         font-size: 0.83rem;
         font-weight: 600;
+        margin-left: auto;
       }
       .links a:hover,
       .links a[aria-current] {
@@ -565,7 +566,13 @@
           width: calc(100% - 28px);
         }
         nav {
-          height: 65px;
+          height: auto;
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: space-between;
+          align-items: center;
+          padding: 12px 0;
+          gap: 12px;
         }
         .mark {
           width: 34px;
@@ -577,13 +584,20 @@
         .brand small {
           font-size: 0.49rem;
         }
-        .links a:not(.book) {
-          display: none;
-        }
         .links {
-          gap: 0;
+          width: 100%;
+          margin-left: 0;
+          display: flex;
+          justify-content: center;
+          gap: 16px;
+          border-top: 1px solid rgba(15, 53, 84, 0.1);
+          padding-top: 10px;
         }
-        .links .book {
+        .links a {
+          display: inline-block !important;
+          font-size: 0.8rem;
+        }
+        .book {
           min-height: 39px;
           padding: 8px 12px;
           font-size: 0.77rem;
@@ -770,7 +784,7 @@
       .topbar .book-text span {
         display: block;
       }
-      .topbar .links .book {
+      .topbar .book {
         display: inline-flex;
         align-items: center;
         gap: 10px;
@@ -797,7 +811,7 @@
           letter-spacing: 0.035em;
           line-height: 1.25;
         }
-        .topbar .links .book {
+        .topbar .book {
           padding: 8px 13px;
           gap: 8px;
         }
@@ -824,13 +838,13 @@
           <a href="https://casavacanze-khaoyai.com/">Main entrance หน้าหลัก</a>
           <a href="https://casavacanze-khaoyai.com/explore-villa" aria-current="page">Explore villa</a>
           <a href="https://casavacanze-khaoyai.com/toscana-valley">About Toscana Valley</a>
-          <a class="button book" href="https://casavacanze-khaoyai.com/#contact"
-            ><span class="line-mark">LINE</span
-            ><span class="book-text"
-              ><span>สอบถาม</span><span>รายละเอียด</span></span
-            ></a
-          >
         </div>
+        <a class="button book" href="https://casavacanze-khaoyai.com/#contact"
+          ><span class="line-mark">LINE</span
+          ><span class="book-text"
+            ><span>สอบถาม</span><span>รายละเอียด</span></span
+          ></a
+        >
       </nav>
     </header>
     <main>
