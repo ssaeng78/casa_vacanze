@@ -561,7 +561,7 @@
         font-size: 0.77rem;
         text-align: center;
       }
-      @media (max-width: 800px) {
+      @media (max-width: 800px) { .mobile-menu-toggle{display:block;order:3}.links{display:none !important}.links.is-open{display:flex !important;order:4;width:100%;flex-direction:column;gap:12px;padding:16px 0;}.brand-copy small span{display:block;font-size:0.75rem;line-height:1.4;margin-top:2px} 
         .wrap {
           width: calc(100% - 28px);
         }
@@ -834,7 +834,7 @@
             ></span
           ></a
         >
-        <div class="links">
+        <button class="mobile-menu-toggle" aria-label="Toggle menu" onclick="this.nextElementSibling.classList.toggle('is-open')"><svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button><div class="links">
           <a href="https://casavacanze-khaoyai.com/">Main Entrance</a>
           <a href="https://casavacanze-khaoyai.com/explore-villa" aria-current="page">Explore the Villa</a>
           <a href="https://casavacanze-khaoyai.com/toscana-valley">About toscana-valley</a>
