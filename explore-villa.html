@@ -561,7 +561,7 @@
         font-size: 0.77rem;
         text-align: center;
       }
-      @media (max-width: 800px) {.brand-copy small{flex-direction:column;align-items:flex-start;gap:0} .brand-copy small span:first-child:after{display:none} .brand{margin-right:auto} .book{order:2;margin-right:12px}  .mobile-menu-toggle{display:block;order:3}.links{display:none !important}.links.is-open{display:flex !important;order:4;width:100%;flex-direction:column;gap:12px;padding:16px 0;}.brand-copy small span{display:block;font-size:0.75rem;line-height:1.4;margin-top:2px} 
+      @media (max-width: 800px) {.brand-copy small{flex-direction:column;align-items:flex-start;gap:0} .brand-copy small span:first-child:after{display:none}    .brand-copy small span{display:block;font-size:0.75rem;line-height:1.4;margin-top:2px} 
         .wrap {
           width: calc(100% - 28px);
         }
@@ -719,7 +719,7 @@
           font-size: 0.64rem;
         }
       }
-    </style>
+     @media(max-width:800px){ .nav-right{flex-direction:row-reverse}  .menu-text{display:none}   .menu-btn{padding:6px 2px}   .menu-dropdown{position:fixed;top:74px;left:12px;right:12px;width:auto;box-shadow:0 24px 48px rgba(0,0,0,.5)} } </style>
     <style>
       .hero {
         align-items: start;
@@ -821,32 +821,10 @@
           font-size: 0.5rem;
         }
       }
-    </style>
+     @media(max-width:800px){ .nav-right{flex-direction:row-reverse}  .menu-text{display:none}   .menu-btn{padding:6px 2px}   .menu-dropdown{position:fixed;top:74px;left:12px;right:12px;width:auto;box-shadow:0 24px 48px rgba(0,0,0,.5)} } </style>
   </head>
   <body>
-    <header class="topbar">
-      <nav class="wrap">
-        <a class="brand" href="https://casavacanze-khaoyai.com/"
-          ><span class="monogram">CV</span
-          ><span class="brand-copy"
-            >Casa Vacanze<small
-              >Toscana Valley · <strong>Khao Yai</strong> · Thailand</small
-            ></span
-          ></a
-        >
-        <button class="mobile-menu-toggle" aria-label="Toggle menu" onclick="this.nextElementSibling.classList.toggle('is-open')"><svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button><div class="links">
-          <a href="https://casavacanze-khaoyai.com/">Main Entrance</a>
-          <a href="https://casavacanze-khaoyai.com/explore-villa" aria-current="page">Explore the Villa</a>
-          <a href="https://casavacanze-khaoyai.com/toscana-valley">About toscana-valley</a>
-        </div>
-        <a class="button book" href="https://casavacanze-khaoyai.com/#contact"
-          ><span class="line-mark">LINE</span
-          ><span class="book-text"
-            ><span>สอบถาม</span><span>รายละเอียด</span></span
-          ></a
-        >
-      </nav>
-    </header>
+    <header class="topbar"><nav class="wrap"><a class="brand" href="https://casavacanze-khaoyai.com/"><span class="monogram">CV</span><span class="brand-copy">Casa Vacanze<small><span>Toscana Valley</span><span>Khao Yai · Thailand</span></small></span></a><div class="nav-right"><div class="menu-container"><button class="menu-btn" aria-label="Toggle menu" onclick="this.nextElementSibling.classList.toggle('is-open')"><svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg><span class="menu-text">Menu</span></button><div class="menu-dropdown"><div class="dropdown-header">BROWSE</div><a href="https://casavacanze-khaoyai.com/">Main Entrance</a><a href="https://casavacanze-khaoyai.com/explore-villa" aria-current="page">Explore the Villa</a><a href="https://casavacanze-khaoyai.com/toscana-valley">About toscana-valley</a></div></div><a class="book line-icon-only" href="#contact" aria-label="Contact us via LINE"><svg viewBox="0 0 24 24"><path d="M19.365 9.863c0-2.929-3.3-5.311-7.365-5.311-4.065 0-7.365 2.382-7.365 5.311 0 2.639 2.665 4.856 6.136 5.234.241.053.567.162.648.371.073.189.048.481.022.671l-.161.972c-.021.127-.1.5.438.273.538-.228 2.9-1.708 3.992-2.95.892-1.018 1.655-2.091 1.655-4.571zm-9.351 1.709h-1.638V7.558h.682v3.332h.956v.682zm1.884 0h-.682V7.558h.682v4.014zm3.842 0h-.696l-1.464-2.223v2.223h-.682V7.558h.696l1.464 2.223V7.558h.682v4.014zm2.148 0h-1.637v-1.328h1.637v-.681h-1.637v-1.324h1.637v-.681h-2.319v4.014h2.319v-.681z"/></svg></a></div></nav></header>
     <main>
       <section class="hero">
         <img
