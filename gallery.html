@@ -320,9 +320,47 @@
       });
     };
 
-    fetch("images/gallery/manifest.json", { cache: "no-store" })
-      .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then((data) => renderGallery(Array.isArray(data.images) ? data.images : FALLBACK_IMAGES))
+    const decodeGithubContent = (content) => {
+      const binary = atob(String(content || "").replace(/\n/g, ""));
+      const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
+      return new TextDecoder().decode(bytes);
+    };
+
+    const loadGalleryImages = async () => {
+      try {
+        const api = await fetch("/api/gallery-order", { cache: "no-store" });
+        if (api.ok) {
+          const data = await api.json();
+          if (Array.isArray(data.images) && data.images.length) return data.images;
+        }
+      } catch (_) { /* fall through */ }
+
+      try {
+        const gh = await fetch(
+          "https://api.github.com/repos/ssaeng78/casa_vacanze/contents/images/gallery/manifest.json?ref=main",
+          {
+            headers: {
+              Accept: "application/vnd.github+json",
+              "X-GitHub-Api-Version": "2022-11-28",
+            },
+            cache: "no-store",
+          }
+        );
+        if (gh.ok) {
+          const meta = await gh.json();
+          const data = JSON.parse(decodeGithubContent(meta.content));
+          if (Array.isArray(data.images) && data.images.length) return data.images;
+        }
+      } catch (_) { /* fall through */ }
+
+      const local = await fetch("images/gallery/manifest.json", { cache: "no-store" });
+      if (!local.ok) throw new Error("manifest missing");
+      const data = await local.json();
+      return Array.isArray(data.images) ? data.images : FALLBACK_IMAGES;
+    };
+
+    loadGalleryImages()
+      .then((images) => renderGallery(images))
       .catch(() => renderGallery(FALLBACK_IMAGES));
 
     box.addEventListener("click", closeLightbox);

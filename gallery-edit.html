@@ -216,14 +216,14 @@
         <label class="btn primary" for="file-input">+ Add photos</label>
         <input id="file-input" type="file" accept="image/*" multiple hidden>
         <a class="btn" href="gallery.html">ดูหน้าแกลเลอรี</a>
-        <button class="btn dark" id="btn-save" type="button">ดาวน์โหลดลำดับใหม่</button>
+        <button class="btn dark" id="btn-save" type="button">บันทึก</button>
       </div>
     </div>
   </header>
 
   <main class="wrap">
     <h1>Photo gallery</h1>
-    <p class="sub">ลากรูปเพื่อเรียงลำดับ — โหมดเหมือนตัวจัดการรูปมาตรฐาน</p>
+    <p class="sub">ลากรูปเพื่อเรียงลำดับ แล้วกดบันทึก — อัปเดตหน้าแกลเลอรีทันที ไม่ต้องดาวน์โหลดไฟล์</p>
 
     <div class="toolbar">
       <div class="bulk">
@@ -244,9 +244,18 @@
     <div class="grid ordering-on" id="grid" aria-label="จัดเรียงรูปแกลเลอรี"></div>
 
     <div class="help">
-      <b>วิธีบันทึกลำดับ:</b>
-      ลากเรียงให้พอใจ → กด <b>ดาวน์โหลดลำดับใหม่</b> → อัปโหลดไฟล์ <code>manifest.json</code> ทับใน GitHub ที่โฟลเดอร์ <code>images/gallery/</code>
-      <br>ถ้ารูปใหม่: กด <b>Add photos</b> (หรืออัปโหลดไฟล์เข้า <code>images/gallery/</code> ก่อน แล้วเพิ่มชื่อไฟล์ในหน้านี้)
+      <b>วิธีบันทึก:</b>
+      ลากเรียงให้พอใจ → กด <b>บันทึก</b> — ระบบอัปเดตลำดับบนเว็บให้เอง
+      <br>ถ้ารูปใหม่: อัปโหลดไฟล์เข้าโฟลเดอร์ <code>images/</code> บน GitHub ก่อน แล้วค่อย Add photos / เรียงในหน้านี้
+      <span id="token-help" hidden><br>ครั้งแรกอาจต้องวาง GitHub Token ด้านล่าง (ใช้ครั้งเดียว เก็บในเครื่องคุณ)</span>
+    </div>
+    <div id="token-panel" class="help" hidden style="margin-top:10px">
+      <label for="github-token" style="display:block;margin-bottom:8px;color:var(--ink);font-weight:700">GitHub Token (Contents: Read and write)</label>
+      <input id="github-token" type="password" autocomplete="off" placeholder="github_pat_..." style="width:min(520px,100%);padding:10px 12px;border:1px solid var(--line);border-radius:8px;font:500 0.9rem ui-monospace,monospace">
+      <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:8px">
+        <button class="btn primary" id="btn-save-token" type="button">ใช้ Token นี้แล้วบันทึก</button>
+        <button class="btn" id="btn-clear-token" type="button">ลบ Token จากเครื่อง</button>
+      </div>
     </div>
   </main>
 
@@ -388,7 +397,7 @@
             if (Number.isNaN(from) || from === to) return;
             const [moved] = items.splice(from, 1);
             items.splice(to, 0, moved);
-            setStatus("จัดเรียงแล้ว — กดดาวน์โหลดลำดับใหม่เพื่อบันทึก");
+            setStatus("จัดเรียงแล้ว — กดบันทึกเพื่ออัปเดตหน้าแกลเลอรี");
             render();
           });
         }
@@ -397,19 +406,132 @@
       });
     };
 
-    const downloadManifest = () => {
-      const payload = { images: items.map((i) => i.file) };
-      const blob = new Blob([JSON.stringify(payload, null, 2) + "\n"], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "manifest.json";
-      a.click();
-      URL.revokeObjectURL(url);
-      setStatus("ดาวน์โหลด manifest.json แล้ว — อัปโหลดทับใน images/gallery/ บน GitHub", true);
+    const REPO = "ssaeng78/casa_vacanze";
+    const MANIFEST_PATH = "images/gallery/manifest.json";
+    const TOKEN_KEY = "casaGalleryGithubToken";
+    const tokenPanel = document.getElementById("token-panel");
+    const tokenHelp = document.getElementById("token-help");
+    const tokenInput = document.getElementById("github-token");
+
+    const toBase64 = (text) => {
+      const bytes = new TextEncoder().encode(text);
+      let binary = "";
+      bytes.forEach((b) => { binary += String.fromCharCode(b); });
+      return btoa(binary);
     };
 
-    document.getElementById("btn-save").addEventListener("click", downloadManifest);
+    const showTokenPanel = (focus = true) => {
+      tokenPanel.hidden = false;
+      tokenHelp.hidden = false;
+      if (focus) tokenInput.focus();
+    };
+
+    const saveViaApi = async (images) => {
+      const res = await fetch("/api/gallery-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ images }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.ok) return { ok: true, via: "api", data };
+      return { ok: false, status: res.status, data };
+    };
+
+    const saveViaGithub = async (images, token) => {
+      const headers = {
+        Accept: "application/vnd.github+json",
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+        "X-GitHub-Api-Version": "2022-11-28",
+      };
+      const metaRes = await fetch(
+        `https://api.github.com/repos/${REPO}/contents/${MANIFEST_PATH}?ref=main`,
+        { headers }
+      );
+      if (!metaRes.ok) {
+        const detail = await metaRes.text();
+        throw new Error(`อ่านไฟล์ไม่สำเร็จ (${metaRes.status}) ${detail.slice(0, 120)}`);
+      }
+      const meta = await metaRes.json();
+      const payload = `${JSON.stringify({ images }, null, 2)}\n`;
+      const putRes = await fetch(
+        `https://api.github.com/repos/${REPO}/contents/${MANIFEST_PATH}`,
+        {
+          method: "PUT",
+          headers,
+          body: JSON.stringify({
+            message: "chore(gallery): update photo order",
+            content: toBase64(payload),
+            sha: meta.sha,
+            branch: "main",
+          }),
+        }
+      );
+      if (!putRes.ok) {
+        const detail = await putRes.text();
+        throw new Error(`บันทึกไม่สำเร็จ (${putRes.status}) ${detail.slice(0, 160)}`);
+      }
+      return putRes.json();
+    };
+
+    const saveManifest = async () => {
+      const images = items.map((i) => i.file);
+      if (!images.length) {
+        setStatus("ยังไม่มีรูปให้บันทึก");
+        return;
+      }
+      const btn = document.getElementById("btn-save");
+      btn.disabled = true;
+      setStatus("กำลังบันทึกลำดับ...");
+
+      try {
+        let apiResult = { ok: false };
+        try {
+          apiResult = await saveViaApi(images);
+        } catch (_) {
+          apiResult = { ok: false };
+        }
+        if (apiResult.ok) {
+          setStatus("บันทึกแล้ว — หน้าแกลเลอรีใช้ลำดับใหม่ได้ทันที", true);
+          return;
+        }
+
+        // ถ้ายังไม่มี GITHUB_TOKEN บน Cloudflare: ใช้ Token ในเครื่องนี้แทน
+        let token = localStorage.getItem(TOKEN_KEY) || tokenInput.value.trim();
+        if (!token) {
+          showTokenPanel(true);
+          setStatus("วาง GitHub Token ด้านล่าง แล้วกดบันทึกอีกครั้ง (ทำครั้งเดียว)");
+          return;
+        }
+
+        await saveViaGithub(images, token);
+        localStorage.setItem(TOKEN_KEY, token);
+        tokenInput.value = "";
+        tokenPanel.hidden = true;
+        setStatus("บันทึกแล้ว — หน้าแกลเลอรีใช้ลำดับใหม่ได้ทันที", true);
+      } catch (err) {
+        showTokenPanel(true);
+        setStatus(`บันทึกไม่สำเร็จ: ${err.message || err}`);
+      } finally {
+        btn.disabled = false;
+      }
+    };
+
+    document.getElementById("btn-save").addEventListener("click", saveManifest);
+    document.getElementById("btn-save-token").addEventListener("click", () => {
+      const token = tokenInput.value.trim();
+      if (!token) {
+        setStatus("กรุณาวาง GitHub Token ก่อน");
+        return;
+      }
+      localStorage.setItem(TOKEN_KEY, token);
+      saveManifest();
+    });
+    document.getElementById("btn-clear-token").addEventListener("click", () => {
+      localStorage.removeItem(TOKEN_KEY);
+      tokenInput.value = "";
+      setStatus("ลบ Token จากเครื่องนี้แล้ว");
+    });
     document.getElementById("btn-select-all").addEventListener("click", () => {
       items.forEach((i) => (i.selected = true));
       render();
@@ -452,15 +574,48 @@
       }
     });
 
-    fetch("images/gallery/manifest.json", { cache: "no-store" })
-      .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then((data) => {
-        const list = Array.isArray(data.images) ? data.images : FALLBACK;
+    const loadList = async () => {
+      try {
+        const api = await fetch("/api/gallery-order", { cache: "no-store" });
+        if (api.ok) {
+          const data = await api.json();
+          if (Array.isArray(data.images) && data.images.length) return data.images;
+        }
+      } catch (_) { /* fall through */ }
+
+      try {
+        const gh = await fetch(
+          `https://api.github.com/repos/${REPO}/contents/${MANIFEST_PATH}?ref=main`,
+          {
+            headers: {
+              Accept: "application/vnd.github+json",
+              "X-GitHub-Api-Version": "2022-11-28",
+            },
+            cache: "no-store",
+          }
+        );
+        if (gh.ok) {
+          const meta = await gh.json();
+          const binary = atob(String(meta.content || "").replace(/\n/g, ""));
+          const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
+          const data = JSON.parse(new TextDecoder().decode(bytes));
+          if (Array.isArray(data.images) && data.images.length) return data.images;
+        }
+      } catch (_) { /* fall through */ }
+
+      const local = await fetch("images/gallery/manifest.json", { cache: "no-store" });
+      if (!local.ok) throw new Error("manifest missing");
+      const data = await local.json();
+      return Array.isArray(data.images) ? data.images : FALLBACK;
+    };
+
+    loadList()
+      .then((list) => {
         items = list.map((file) => {
           const path = toPath(file);
           return { file: path, src: path, selected: false };
         });
-        setStatus(`โหลด ${items.length} รูปแล้ว — เปิด Smart ordering แล้ว ลากเพื่อเรียงได้`);
+        setStatus(`โหลด ${items.length} รูปแล้ว — ลากเรียงแล้วกดบันทึกได้เลย`);
         render();
       })
       .catch(() => {
