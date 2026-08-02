@@ -618,10 +618,31 @@
     document.getElementById("btn-save").addEventListener("click", saveManifest);
     document.getElementById("btn-select-all").addEventListener("click", () => {
       items.forEach((i) => (i.selected = true));
+      setStatus(`เลือกทั้งหมด ${items.length} รูป — ลากหรือคลิกจุดหมายเพื่อย้ายพร้อมกัน`);
       render();
     });
     document.getElementById("btn-deselect-all").addEventListener("click", () => {
       items.forEach((i) => (i.selected = false));
+      setStatus("ยกเลิกการเลือกแล้ว");
+      render();
+    });
+    document.getElementById("btn-clear-sel").addEventListener("click", () => {
+      items.forEach((i) => (i.selected = false));
+      setStatus("ยกเลิกการเลือกแล้ว");
+      render();
+    });
+    document.getElementById("btn-move-up").addEventListener("click", () => {
+      const group = selectedIndices();
+      if (!group.length) return;
+      if (!moveGroupBy(group, -1)) return;
+      setStatus(group.length > 1 ? `เลื่อนขึ้น ${group.length} รูป` : "เลื่อนขึ้นแล้ว");
+      render();
+    });
+    document.getElementById("btn-move-down").addEventListener("click", () => {
+      const group = selectedIndices();
+      if (!group.length) return;
+      if (!moveGroupBy(group, 1)) return;
+      setStatus(group.length > 1 ? `เลื่อนลง ${group.length} รูป` : "เลื่อนลงแล้ว");
       render();
     });
     document.getElementById("btn-delete").addEventListener("click", () => {
