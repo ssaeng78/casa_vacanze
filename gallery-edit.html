@@ -129,7 +129,15 @@
     .card.selected { border-color: var(--blue); }
     .card.selected img { filter: brightness(1.05); }
     .card.drag-over { outline: 2px solid var(--blue); outline-offset: 2px; }
-    .card.dragging { opacity: 0.55; cursor: grabbing; }
+    .card.dragging, .card.drag-group { opacity: 0.55; cursor: grabbing; }
+    .drag-count {
+      position: absolute; right: 10px; bottom: 10px; z-index: 4;
+      min-width: 28px; height: 28px; padding: 0 8px;
+      border-radius: 999px; background: var(--blue); color: #fff;
+      font: 700 0.85rem/28px "Noto Sans Thai", sans-serif;
+      text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,.25);
+      pointer-events: none;
+    }
     .check {
       position: absolute; top: 10px; left: 10px; z-index: 3;
       width: 22px; height: 22px; border-radius: 5px;
@@ -223,7 +231,7 @@
 
   <main class="wrap">
     <h1>Photo gallery</h1>
-    <p class="sub">ลากรูปเพื่อเรียงลำดับ แล้วกดบันทึก — อัปเดตหน้าแกลเลอรีทันที ไม่ต้องดาวน์โหลดไฟล์</p>
+    <p class="sub">ติ๊กเลือกได้หลายรูป แล้วลากย้ายพร้อมกัน — กดบันทึกเมื่อเรียงเสร็จ</p>
 
     <div class="toolbar">
       <div class="bulk">
@@ -244,8 +252,8 @@
     <div class="grid ordering-on" id="grid" aria-label="จัดเรียงรูปแกลเลอรี"></div>
 
     <div class="help">
-      <b>วิธีบันทึก:</b>
-      ลากเรียงให้พอใจ → กด <b>บันทึก</b> — อัปเดตหน้าแกลเลอรีทันที ไม่ต้องดาวน์โหลดหรือวาง Token
+      <b>วิธีใช้:</b>
+      ติ๊กเลือปรูปทีละหลายรูป (หรือ Shift+คลิกช่องติ๊กเพื่อเลือกช่วง) → ลากรูปที่เลือกไปวางตำแหน่งใหม่พร้อมกัน → กด <b>บันทึก</b>
       <br>ถ้ารูปใหม่: อัปโหลดไฟล์เข้าโฟลเดอร์ <code>images/</code> บน GitHub ก่อน แล้วค่อย Add photos / เรียงในหน้านี้
     </div>
   </main>
@@ -264,7 +272,9 @@
 
     /** @type {{file:string, src:string, w?:number, h?:number, selected:boolean, local?:boolean}[]} */
     let items = [];
-    let dragFrom = -1;
+    /** @type {number[]} */
+    let dragIndices = [];
+    let lastCheckedIndex = -1;
 
     const setStatus = (msg, ok = false) => {
       statusEl.textContent = msg;
@@ -287,6 +297,69 @@
 
     const checkIcon = `<svg viewBox="0 0 24 24"><path d="M9.2 16.6 4.8 12.2l1.4-1.4 3 3 8.6-8.6 1.4 1.4z"/></svg>`;
 
+    const selectedCount = () => items.filter((i) => i.selected).length;
+
+    const moveGroupTo = (fromIndices, targetIndex) => {
+      const unique = [...new Set(fromIndices)].filter((i) => i >= 0 && i < items.length).sort((a, b) => a - b);
+      if (!unique.length) return false;
+      if (unique.includes(targetIndex) && unique.length === 1) return false;
+
+      const moving = unique.map((i) => items[i]);
+      const targetItem = items[targetIndex];
+      const remaining = items.filter((_, i) => !unique.includes(i));
+
+      let insertAt = remaining.indexOf(targetItem);
+      if (insertAt < 0) {
+        // Dropped onto an item inside the moving group — place at the old visual slot.
+        insertAt = Math.min(targetIndex, remaining.length);
+      }
+
+      remaining.splice(insertAt, 0, ...moving);
+      items = remaining;
+      return true;
+    };
+
+    const moveGroupBy = (fromIndices, delta) => {
+      const unique = [...new Set(fromIndices)].filter((i) => i >= 0 && i < items.length).sort((a, b) => a - b);
+      if (!unique.length || !delta) return false;
+      if (delta < 0) {
+        const first = unique[0];
+        if (first + delta < 0) return false;
+        return moveGroupTo(unique, first + delta);
+      }
+      const last = unique[unique.length - 1];
+      if (last + delta >= items.length) return false;
+      const target = last + delta + 1;
+      if (target >= items.length) {
+        const moving = unique.map((i) => items[i]);
+        items = items.filter((_, i) => !unique.includes(i)).concat(moving);
+        return true;
+      }
+      return moveGroupTo(unique, target);
+    };
+
+    const setDragGhost = (event, count) => {
+      if (count <= 1 || !event.dataTransfer) return;
+      const ghost = document.createElement("div");
+      ghost.textContent = `${count} รูป`;
+      ghost.style.cssText = [
+        "position:fixed",
+        "top:-100px",
+        "left:-100px",
+        "padding:10px 14px",
+        "border-radius:999px",
+        "background:#0a66c2",
+        "color:#fff",
+        "font:700 14px 'Noto Sans Thai',sans-serif",
+        "box-shadow:0 8px 20px rgba(0,0,0,.28)",
+        "pointer-events:none",
+        "z-index:9999",
+      ].join(";");
+      document.body.appendChild(ghost);
+      event.dataTransfer.setDragImage(ghost, 24, 16);
+      setTimeout(() => ghost.remove(), 0);
+    };
+
     const render = () => {
       const orderingOn = smartToggle.checked;
       grid.classList.toggle("ordering-on", orderingOn);
@@ -299,6 +372,9 @@
         card.draggable = orderingOn;
         card.dataset.index = String(index);
         const size = item.w && item.h ? `${item.w} x ${item.h}px` : labelOf(item.file);
+        const hint = orderingOn
+          ? (item.selected && selectedCount() > 1 ? `ลาก ${selectedCount()} รูปพร้อมกัน` : "ลากเพื่อเรียง / ติ๊กเลือกหลายรูป")
+          : "คลิกเพื่อเลือก";
         card.innerHTML = `
           <img src="${item.src}" alt="${labelOf(item.file)}" loading="lazy">
           <div class="shade"></div>
@@ -311,7 +387,7 @@
           </div>
           <div class="center-hint">
             <div class="move-icon">${moveIcon}</div>
-            <span>${orderingOn ? "Drag to reorder" : "Click to select"}</span>
+            <span>${hint}</span>
           </div>
           <div class="meta">${size}</div>
         `;
@@ -325,7 +401,17 @@
 
         card.querySelector(".check").addEventListener("click", (e) => {
           e.stopPropagation();
-          item.selected = !item.selected;
+          if (e.shiftKey && lastCheckedIndex >= 0) {
+            const start = Math.min(lastCheckedIndex, index);
+            const end = Math.max(lastCheckedIndex, index);
+            const shouldSelect = !item.selected;
+            for (let i = start; i <= end; i += 1) items[i].selected = shouldSelect;
+          } else {
+            item.selected = !item.selected;
+          }
+          lastCheckedIndex = index;
+          const n = selectedCount();
+          setStatus(n ? `เลือกแล้ว ${n} รูป — ลากรูปที่เลือกเพื่อย้ายพร้อมกัน` : "ยกเลิกการเลือกแล้ว");
           render();
         });
 
@@ -341,15 +427,24 @@
           btn.addEventListener("click", (e) => {
             e.stopPropagation();
             const act = btn.dataset.act;
-            if (act === "up" && index > 0) {
-              [items[index - 1], items[index]] = [items[index], items[index - 1]];
-              setStatus("เลื่อนขึ้นแล้ว");
-            } else if (act === "down" && index < items.length - 1) {
-              [items[index + 1], items[index]] = [items[index], items[index + 1]];
-              setStatus("เลื่อนลงแล้ว");
+            const group = item.selected
+              ? items.map((it, i) => (it.selected ? i : -1)).filter((i) => i >= 0)
+              : [index];
+
+            if (act === "up") {
+              if (!moveGroupBy(group, -1)) return;
+              setStatus(group.length > 1 ? `เลื่อนขึ้น ${group.length} รูป` : "เลื่อนขึ้นแล้ว");
+            } else if (act === "down") {
+              if (!moveGroupBy(group, 1)) return;
+              setStatus(group.length > 1 ? `เลื่อนลง ${group.length} รูป` : "เลื่อนลงแล้ว");
             } else if (act === "remove") {
-              items.splice(index, 1);
-              setStatus(`ลบ ${item.file} ออกจากรายการแล้ว`);
+              if (group.length > 1) {
+                items = items.filter((_, i) => !group.includes(i));
+                setStatus(`ลบออกจากรายการ ${group.length} รูป`);
+              } else {
+                items.splice(index, 1);
+                setStatus(`ลบ ${item.file} ออกจากรายการแล้ว`);
+              }
             }
             render();
           });
@@ -359,36 +454,62 @@
           if (e.target.closest(".check, .options, .options-menu")) return;
           if (!orderingOn) {
             item.selected = !item.selected;
+            lastCheckedIndex = index;
             render();
           }
         });
 
         if (orderingOn) {
           card.addEventListener("dragstart", (e) => {
-            dragFrom = index;
+            if (item.selected) {
+              dragIndices = items.map((it, i) => (it.selected ? i : -1)).filter((i) => i >= 0);
+            } else {
+              dragIndices = [index];
+            }
+            const count = dragIndices.length;
             card.classList.add("dragging");
+            dragIndices.forEach((i) => {
+              const el = grid.querySelector(`[data-index="${i}"]`);
+              if (el) el.classList.add("drag-group");
+            });
+            if (count > 1) {
+              const badge = document.createElement("div");
+              badge.className = "drag-count";
+              badge.textContent = String(count);
+              card.appendChild(badge);
+            }
             e.dataTransfer.effectAllowed = "move";
-            e.dataTransfer.setData("text/plain", String(index));
+            e.dataTransfer.setData("text/plain", dragIndices.join(","));
+            setDragGhost(e, count);
+            setStatus(count > 1 ? `กำลังลาก ${count} รูป...` : "กำลังลาก 1 รูป...");
           });
           card.addEventListener("dragend", () => {
-            dragFrom = -1;
-            card.classList.remove("dragging");
-            grid.querySelectorAll(".drag-over").forEach((el) => el.classList.remove("drag-over"));
+            dragIndices = [];
+            grid.querySelectorAll(".dragging, .drag-group, .drag-over").forEach((el) => {
+              el.classList.remove("dragging", "drag-group", "drag-over");
+            });
+            grid.querySelectorAll(".drag-count").forEach((el) => el.remove());
           });
           card.addEventListener("dragover", (e) => {
             e.preventDefault();
+            if (dragIndices.includes(index)) return;
             card.classList.add("drag-over");
           });
           card.addEventListener("dragleave", () => card.classList.remove("drag-over"));
           card.addEventListener("drop", (e) => {
             e.preventDefault();
             card.classList.remove("drag-over");
-            const from = Number(e.dataTransfer.getData("text/plain"));
-            const to = index;
-            if (Number.isNaN(from) || from === to) return;
-            const [moved] = items.splice(from, 1);
-            items.splice(to, 0, moved);
-            setStatus("จัดเรียงแล้ว — กดบันทึกเพื่ออัปเดตหน้าแกลเลอรี");
+            const raw = e.dataTransfer.getData("text/plain") || dragIndices.join(",");
+            const from = raw.split(",").map(Number).filter((n) => !Number.isNaN(n));
+            if (!from.length || (from.length === 1 && from[0] === index)) return;
+            if (from.includes(index) && from.length > 1) return;
+            const count = from.length;
+            if (!moveGroupTo(from, index)) return;
+            setStatus(
+              count > 1
+                ? `ย้าย ${count} รูปแล้ว — กดบันทึกเพื่ออัปเดตหน้าแกลเลอรี`
+                : "จัดเรียงแล้ว — กดบันทึกเพื่ออัปเดตหน้าแกลเลอรี"
+            );
             render();
           });
         }
