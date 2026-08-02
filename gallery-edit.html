@@ -606,6 +606,7 @@
           card.addEventListener("drop", (e) => {
             e.preventDefault();
             e.stopPropagation();
+            stopAutoScroll();
             card.classList.remove("drag-over");
             const raw =
               e.dataTransfer.getData("text/plain") ||
