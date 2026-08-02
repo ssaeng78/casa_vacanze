@@ -6,188 +6,259 @@
   <title>จัดเรียงแกลเลอรี — Casa Vacanze</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --pine: #073d37;
-      --cream: #f7f0e3;
-      --paper: #fbf7ef;
+      --ink: #222;
+      --muted: #6a6a6a;
+      --line: #dddddd;
+      --bg: #fff;
+      --soft: #f7f7f7;
+      --blue: #0a66c2;
+      --blue-soft: #e8f1fb;
+      --danger: #c13515;
       --gold: #c39135;
-      --ink: #18332e;
-      --muted: #687771;
+      --pine: #073d37;
     }
     * { box-sizing: border-box; }
     body {
       margin: 0;
       color: var(--ink);
-      background: var(--paper);
-      font-family: "Noto Sans Thai", sans-serif;
-      line-height: 1.55;
+      background: var(--bg);
+      font-family: "Noto Sans Thai", system-ui, sans-serif;
     }
-    .wrap { width: min(1100px, calc(100% - 32px)); margin: auto; }
     a { color: inherit; }
+    .wrap { width: min(1180px, calc(100% - 40px)); margin: auto; }
     header {
-      position: sticky; top: 0; z-index: 10;
-      background: rgba(251, 247, 239, 0.95);
-      border-bottom: 1px solid rgba(7, 61, 55, 0.1);
-      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+      position: sticky; top: 0; z-index: 20;
     }
     .bar {
-      min-height: 72px;
+      min-height: 68px;
       display: flex; align-items: center; justify-content: space-between; gap: 16px;
     }
-    .brand { font: 1.25rem "DM Serif Display", serif; text-decoration: none; }
+    .brand {
+      text-decoration: none;
+      font: 1.2rem "DM Serif Display", serif;
+    }
     .brand small {
       display: block; margin-top: 2px;
       color: var(--muted); font: 700 0.68rem/1.3 "Noto Sans Thai", sans-serif;
-      letter-spacing: 0.06em; text-transform: uppercase;
+      letter-spacing: 0.05em; text-transform: uppercase;
     }
-    .links { display: flex; gap: 10px; flex-wrap: wrap; }
-    .links a, .btn {
-      display: inline-flex; align-items: center; justify-content: center;
-      min-height: 42px; padding: 0 16px; border-radius: 8px;
-      border: 1px solid rgba(7, 61, 55, 0.18);
-      background: #fff; color: var(--pine);
-      font: 700 0.92rem "Noto Sans Thai", sans-serif;
-      text-decoration: none; cursor: pointer;
+    .top-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .btn, .link-btn {
+      appearance: none; border: 0; background: none; cursor: pointer;
+      font: 600 0.95rem "Noto Sans Thai", sans-serif; color: var(--ink);
+      padding: 8px 10px; border-radius: 8px; text-decoration: none;
     }
+    .link-btn:hover, .btn:hover { background: var(--soft); }
+    .link-btn.danger, .btn.danger { color: var(--danger); }
     .btn.primary {
-      background: var(--pine); color: #fff; border-color: var(--pine);
+      background: var(--blue); color: #fff; padding: 10px 16px;
     }
-    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-    .hero { padding: 34px 0 18px; }
+    .btn.primary:hover { filter: brightness(0.96); background: var(--blue); }
+    .btn.dark {
+      background: var(--pine); color: #fff; padding: 10px 16px;
+    }
+    main { padding: 22px 0 80px; }
     h1 {
-      margin: 0 0 8px;
-      font: clamp(1.9rem, 4vw, 2.8rem)/1.1 "DM Serif Display", serif;
+      margin: 0 0 6px;
+      font: 1.8rem/1.15 "DM Serif Display", serif;
     }
-    .steps {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin: 18px 0 8px;
+    .sub {
+      margin: 0 0 18px; color: var(--muted); font-size: 0.95rem;
     }
-    .step {
-      padding: 14px 16px;
-      background: var(--cream);
-      border: 1px solid rgba(195, 145, 53, 0.28);
-      border-radius: 12px;
-      font-size: 0.9rem;
-    }
-    .step b { display: block; color: var(--gold); margin-bottom: 4px; font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; }
     .toolbar {
-      display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
-      margin: 18px 0 14px;
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+      gap: 12px; margin-bottom: 14px; padding-bottom: 12px;
+      border-bottom: 1px solid var(--line);
     }
-    .toolbar input[type="text"] {
-      flex: 1 1 220px; min-height: 42px; padding: 0 14px;
-      border: 1px solid rgba(7, 61, 55, 0.18); border-radius: 8px;
-      font: 500 0.95rem "Noto Sans Thai", sans-serif; background: #fff;
+    .bulk { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; }
+    .smart {
+      display: flex; align-items: center; gap: 10px;
+      color: var(--muted); font-size: 0.92rem; font-weight: 600;
     }
+    .switch {
+      position: relative; width: 44px; height: 26px; flex: 0 0 auto;
+    }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute; inset: 0; cursor: pointer;
+      background: #cfcfcf; border-radius: 999px; transition: 0.2s;
+    }
+    .slider:before {
+      content: ""; position: absolute; width: 20px; height: 20px;
+      left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: 0.2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,.25);
+    }
+    .switch input:checked + .slider { background: var(--blue); }
+    .switch input:checked + .slider:before { transform: translateX(18px); }
     .status {
-      min-height: 1.4em; color: var(--muted); font-size: 0.9rem; margin-bottom: 12px;
+      min-height: 1.4em; margin: 0 0 14px; color: var(--muted); font-size: 0.9rem;
     }
     .status.ok { color: #0a7a3e; font-weight: 700; }
-    .sort-grid {
+    .grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-      padding-bottom: 80px;
+      gap: 10px;
     }
     .card {
       position: relative;
-      background: #fff;
-      border: 1px solid rgba(7, 61, 55, 0.14);
-      border-radius: 14px;
-      overflow: hidden;
-      touch-action: none;
-      user-select: none;
-      cursor: grab;
-      box-shadow: 0 8px 22px rgba(15, 46, 40, 0.06);
-    }
-    .card.dragging {
-      opacity: 0.45;
-      cursor: grabbing;
-    }
-    .card.drag-over {
-      outline: 2px solid var(--gold);
-      outline-offset: 2px;
-    }
-    .card .thumb {
       aspect-ratio: 1;
-      background: #e8dfcf;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #eee;
+      user-select: none;
+      border: 2px solid transparent;
     }
-    .card .thumb img {
+    .card img {
       display: block; width: 100%; height: 100%; object-fit: cover;
+      pointer-events: none; transition: filter 0.15s ease;
+    }
+    .card .shade {
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,.28);
+      opacity: 0; transition: opacity 0.15s ease;
       pointer-events: none;
     }
-    .card .meta {
-      display: flex; align-items: center; justify-content: space-between; gap: 8px;
-      padding: 10px 10px 12px;
+    .card:hover .shade,
+    .card.selected .shade,
+    .card.dragging .shade { opacity: 1; }
+    .card.selected { border-color: var(--blue); }
+    .card.selected img { filter: brightness(1.05); }
+    .card.drag-over { outline: 2px solid var(--blue); outline-offset: 2px; }
+    .card.dragging { opacity: 0.55; cursor: grabbing; }
+    .check {
+      position: absolute; top: 10px; left: 10px; z-index: 3;
+      width: 22px; height: 22px; border-radius: 5px;
+      border: 2px solid rgba(255,255,255,.95);
+      background: rgba(0,0,0,.15);
+      display: grid; place-items: center; cursor: pointer;
     }
-    .card .name {
-      font-size: 0.78rem; color: var(--muted);
-      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    .card.selected .check {
+      background: var(--blue); border-color: var(--blue);
     }
-    .card .num {
-      position: absolute; top: 8px; left: 8px;
-      min-width: 28px; height: 28px; padding: 0 7px;
+    .check svg { display: none; width: 14px; height: 14px; fill: #fff; }
+    .card.selected .check svg { display: block; }
+    .options {
+      position: absolute; top: 10px; right: 10px; z-index: 3;
+      display: none; align-items: center; gap: 4px;
+      height: 30px; padding: 0 10px;
+      border: 0; border-radius: 8px;
+      background: #fff; color: #222;
+      font: 700 0.78rem "Noto Sans Thai", sans-serif;
+      box-shadow: 0 4px 14px rgba(0,0,0,.18); cursor: pointer;
+    }
+    .card:hover .options,
+    .card.menu-open .options { display: inline-flex; }
+    .options-menu {
+      position: absolute; top: 44px; right: 10px; z-index: 4;
+      min-width: 150px; padding: 6px;
+      background: #fff; border-radius: 10px;
+      box-shadow: 0 10px 28px rgba(0,0,0,.2);
+      display: none;
+    }
+    .card.menu-open .options-menu { display: block; }
+    .options-menu button {
+      width: 100%; border: 0; background: none; text-align: left;
+      padding: 10px 12px; border-radius: 8px; cursor: pointer;
+      font: 600 0.88rem "Noto Sans Thai", sans-serif;
+    }
+    .options-menu button:hover { background: var(--soft); }
+    .options-menu button.danger { color: var(--danger); }
+    .center-hint {
+      position: absolute; inset: 0; z-index: 2;
+      display: none; flex-direction: column; align-items: center; justify-content: center;
+      gap: 8px; color: #fff; text-align: center; pointer-events: none;
+    }
+    .card:hover .center-hint { display: flex; }
+    .move-icon {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: rgba(255,255,255,.95); color: #222;
       display: grid; place-items: center;
-      border-radius: 999px; background: rgba(3, 30, 28, 0.78); color: #fff;
-      font: 700 0.78rem/1 "Noto Sans Thai", sans-serif;
+      box-shadow: 0 8px 20px rgba(0,0,0,.25);
     }
-    .card .actions { display: flex; gap: 4px; }
-    .card .actions button {
-      width: 32px; height: 32px; border: 0; border-radius: 8px;
-      background: rgba(7, 61, 55, 0.08); color: var(--pine);
-      font-size: 1rem; cursor: pointer;
+    .move-icon svg { width: 22px; height: 22px; fill: currentColor; }
+    .center-hint span { font: 700 0.9rem "Noto Sans Thai", sans-serif; text-shadow: 0 1px 8px rgba(0,0,0,.45); }
+    .meta {
+      position: absolute; left: 0; right: 0; bottom: 0; z-index: 2;
+      padding: 28px 10px 8px;
+      background: linear-gradient(transparent, rgba(0,0,0,.55));
+      color: #fff; font: 600 0.75rem/1.2 "Noto Sans Thai", sans-serif;
+      opacity: 0; transition: opacity 0.15s ease; pointer-events: none;
     }
-    .hint {
-      color: var(--muted); font-size: 0.88rem; margin: 0 0 18px;
+    .card:hover .meta, .card.selected .meta { opacity: 1; }
+    .grid.ordering-off .card { cursor: default; }
+    .grid.ordering-on .card { cursor: grab; }
+    .help {
+      margin-top: 18px; padding: 14px 16px; border-radius: 12px;
+      background: var(--soft); color: var(--muted); font-size: 0.9rem;
     }
+    .help b { color: var(--ink); }
     @media (max-width: 800px) {
-      .steps { grid-template-columns: 1fr; }
-      .sort-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+      .wrap { width: calc(100% - 24px); }
+      .grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
       .bar { padding: 10px 0; align-items: flex-start; flex-direction: column; }
+      .options { display: inline-flex !important; }
+      .center-hint { display: flex !important; }
+      .meta { opacity: 1; }
+      .shade { opacity: 0.2; }
     }
   </style>
 </head>
 <body>
   <header>
     <div class="wrap bar">
-      <a class="brand" href="gallery.html">Gallery Editor<small>Casa Vacanze</small></a>
-      <div class="links">
-        <a href="gallery.html">ดูหน้าแกลเลอรี</a>
-        <button class="btn primary" id="btn-save" type="button">ดาวน์โหลดลำดับใหม่</button>
+      <a class="brand" href="gallery.html">Gallery Manager<small>Casa Vacanze</small></a>
+      <div class="top-actions">
+        <label class="btn primary" for="file-input">+ Add photos</label>
+        <input id="file-input" type="file" accept="image/*" multiple hidden>
+        <a class="btn" href="gallery.html">ดูหน้าแกลเลอรี</a>
+        <button class="btn dark" id="btn-save" type="button">ดาวน์โหลดลำดับใหม่</button>
       </div>
     </div>
   </header>
 
   <main class="wrap">
-    <section class="hero">
-      <h1>จัดเรียงรูปด้วยการลากวาง</h1>
-      <p class="hint">ลากการ์ดรูปไปวางตำแหน่งใหม่ได้เลย บนมือถือใช้ปุ่ม ↑ ↓ ได้เช่นกัน</p>
-      <div class="steps">
-        <div class="step"><b>ขั้นที่ 1</b>ลากเรียงรูปตามลำดับที่ต้องการ</div>
-        <div class="step"><b>ขั้นที่ 2</b>กด “ดาวน์โหลดลำดับใหม่” จะได้ไฟล์ <code>manifest.json</code></div>
-        <div class="step"><b>ขั้นที่ 3</b>อัปโหลดไฟล์นั้นทับใน GitHub ที่โฟลเดอร์ <code>images/gallery/</code></div>
-      </div>
-    </section>
+    <h1>Photo gallery</h1>
+    <p class="sub">ลากรูปเพื่อเรียงลำดับ — โหมดเหมือนตัวจัดการรูปมาตรฐาน</p>
 
     <div class="toolbar">
-      <input id="new-file" type="text" placeholder="เพิ่มชื่อไฟล์ เช่น 09.jpg (ต้องอัปโหลดรูปเข้า images/gallery/ แล้ว)" />
-      <button class="btn" id="btn-add" type="button">เพิ่มรูป</button>
-      <button class="btn primary" id="btn-save-2" type="button">ดาวน์โหลดลำดับใหม่</button>
+      <div class="bulk">
+        <button class="link-btn" id="btn-select-all" type="button">Select all</button>
+        <button class="link-btn" id="btn-deselect-all" type="button">Deselect all</button>
+        <button class="link-btn danger" id="btn-delete" type="button">Delete</button>
+      </div>
+      <div class="smart">
+        <span>Smart ordering</span>
+        <label class="switch" title="เปิดเพื่อลากวางเรียงรูป">
+          <input type="checkbox" id="smart-ordering" checked>
+          <span class="slider"></span>
+        </label>
+      </div>
     </div>
-    <div class="status" id="status">กำลังโหลดรายการรูป...</div>
-    <div class="sort-grid" id="sort-grid" aria-label="ลากเพื่อเรียงรูป"></div>
+
+    <div class="status" id="status">กำลังโหลดรูป...</div>
+    <div class="grid ordering-on" id="grid" aria-label="จัดเรียงรูปแกลเลอรี"></div>
+
+    <div class="help">
+      <b>วิธีบันทึกลำดับ:</b>
+      ลากเรียงให้พอใจ → กด <b>ดาวน์โหลดลำดับใหม่</b> → อัปโหลดไฟล์ <code>manifest.json</code> ทับใน GitHub ที่โฟลเดอร์ <code>images/gallery/</code>
+      <br>ถ้ารูปใหม่: กด <b>Add photos</b> (หรืออัปโหลดไฟล์เข้า <code>images/gallery/</code> ก่อน แล้วเพิ่มชื่อไฟล์ในหน้านี้)
+    </div>
   </main>
 
   <script>
     const FALLBACK = ["01.jpg","02.jpg","03.jpg","04.jpg","05.jpg","06.jpg","07.jpg","08.jpg"];
-    const grid = document.getElementById("sort-grid");
+    const grid = document.getElementById("grid");
     const statusEl = document.getElementById("status");
-    const input = document.getElementById("new-file");
-    let images = [];
+    const smartToggle = document.getElementById("smart-ordering");
+    const fileInput = document.getElementById("file-input");
+
+    /** @type {{file:string, src:string, w?:number, h?:number, selected:boolean, local?:boolean}[]} */
+    let items = [];
     let dragFrom = -1;
 
     const setStatus = (msg, ok = false) => {
@@ -197,109 +268,127 @@
 
     const normalize = (name) => name.replace(/^.*[\\/]/, "").trim();
 
+    const moveIcon = `
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M10.5 4.5 12 3l1.5 1.5H12v4.5h4.5V7.5L18 9l-1.5 1.5V9H12v4.5h1.5L12 15l-1.5-1.5H12V9H7.5v1.5L6 9l1.5-1.5V9H12V4.5h-1.5Z"/>
+        <path d="M12 2 8 6h2.5v4.5H6V8L2 12l4 4v-2.5h4.5V18H8l4 4 4-4h-2.5v-4.5H18V16l4-4-4-4v2.5h-4.5V6H16L12 2Z"/>
+      </svg>`;
+
+    const checkIcon = `<svg viewBox="0 0 24 24"><path d="M9.2 16.6 4.8 12.2l1.4-1.4 3 3 8.6-8.6 1.4 1.4z"/></svg>`;
+
     const render = () => {
+      const orderingOn = smartToggle.checked;
+      grid.classList.toggle("ordering-on", orderingOn);
+      grid.classList.toggle("ordering-off", !orderingOn);
       grid.innerHTML = "";
-      images.forEach((file, index) => {
+
+      items.forEach((item, index) => {
         const card = document.createElement("article");
-        card.className = "card";
-        card.draggable = true;
+        card.className = "card" + (item.selected ? " selected" : "");
+        card.draggable = orderingOn;
         card.dataset.index = String(index);
+        const size = item.w && item.h ? `${item.w} x ${item.h}px` : item.file;
         card.innerHTML = `
-          <span class="num">${index + 1}</span>
-          <div class="thumb"><img src="images/gallery/${file}" alt="${file}" loading="lazy"></div>
-          <div class="meta">
-            <span class="name" title="${file}">${file}</span>
-            <div class="actions">
-              <button type="button" data-act="up" aria-label="เลื่อนขึ้น">↑</button>
-              <button type="button" data-act="down" aria-label="เลื่อนลง">↓</button>
-              <button type="button" data-act="remove" aria-label="ลบออกจากรายการ">×</button>
-            </div>
+          <img src="${item.src}" alt="${item.file}" loading="lazy">
+          <div class="shade"></div>
+          <button class="check" type="button" aria-label="เลือก ${item.file}">${checkIcon}</button>
+          <button class="options" type="button">Options ↕</button>
+          <div class="options-menu">
+            <button type="button" data-act="up">Move up</button>
+            <button type="button" data-act="down">Move down</button>
+            <button type="button" data-act="remove" class="danger">Delete</button>
           </div>
+          <div class="center-hint">
+            <div class="move-icon">${moveIcon}</div>
+            <span>${orderingOn ? "Drag to reorder" : "Click to select"}</span>
+          </div>
+          <div class="meta">${size}</div>
         `;
 
-        card.addEventListener("dragstart", (e) => {
-          dragFrom = index;
-          card.classList.add("dragging");
-          e.dataTransfer.effectAllowed = "move";
-          e.dataTransfer.setData("text/plain", String(index));
+        const img = card.querySelector("img");
+        img.addEventListener("load", () => {
+          item.w = img.naturalWidth;
+          item.h = img.naturalHeight;
+          card.querySelector(".meta").textContent = `${item.w} x ${item.h}px`;
         });
-        card.addEventListener("dragend", () => {
-          dragFrom = -1;
-          card.classList.remove("dragging");
-          grid.querySelectorAll(".drag-over").forEach((el) => el.classList.remove("drag-over"));
-        });
-        card.addEventListener("dragover", (e) => {
-          e.preventDefault();
-          card.classList.add("drag-over");
-        });
-        card.addEventListener("dragleave", () => card.classList.remove("drag-over"));
-        card.addEventListener("drop", (e) => {
-          e.preventDefault();
-          card.classList.remove("drag-over");
-          const from = Number(e.dataTransfer.getData("text/plain"));
-          const to = index;
-          if (Number.isNaN(from) || from === to) return;
-          const [item] = images.splice(from, 1);
-          images.splice(to, 0, item);
-          setStatus(`จัดเรียงแล้ว — อย่าลืมกดดาวน์โหลดลำดับใหม่`);
+
+        card.querySelector(".check").addEventListener("click", (e) => {
+          e.stopPropagation();
+          item.selected = !item.selected;
           render();
         });
 
-        card.querySelectorAll("button[data-act]").forEach((btn) => {
+        const optionsBtn = card.querySelector(".options");
+        optionsBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const open = card.classList.contains("menu-open");
+          grid.querySelectorAll(".menu-open").forEach((el) => el.classList.remove("menu-open"));
+          if (!open) card.classList.add("menu-open");
+        });
+
+        card.querySelectorAll("[data-act]").forEach((btn) => {
           btn.addEventListener("click", (e) => {
             e.stopPropagation();
             const act = btn.dataset.act;
             if (act === "up" && index > 0) {
-              [images[index - 1], images[index]] = [images[index], images[index - 1]];
+              [items[index - 1], items[index]] = [items[index], items[index - 1]];
               setStatus("เลื่อนขึ้นแล้ว");
-              render();
-            } else if (act === "down" && index < images.length - 1) {
-              [images[index + 1], images[index]] = [images[index], images[index + 1]];
+            } else if (act === "down" && index < items.length - 1) {
+              [items[index + 1], items[index]] = [items[index], items[index + 1]];
               setStatus("เลื่อนลงแล้ว");
-              render();
             } else if (act === "remove") {
-              images.splice(index, 1);
-              setStatus(`เอา ${file} ออกจากรายการแล้ว`);
-              render();
+              items.splice(index, 1);
+              setStatus(`ลบ ${item.file} ออกจากรายการแล้ว`);
             }
+            render();
           });
         });
 
-        // Touch-friendly pointer drag
-        let pointerId = null;
-        let startY = 0;
-        card.addEventListener("pointerdown", (e) => {
-          if (e.target.closest("button")) return;
-          pointerId = e.pointerId;
-          startY = e.clientY;
-          card.setPointerCapture(pointerId);
-          card.classList.add("dragging");
+        card.addEventListener("click", (e) => {
+          if (e.target.closest(".check, .options, .options-menu")) return;
+          if (!orderingOn) {
+            item.selected = !item.selected;
+            render();
+          }
         });
-        card.addEventListener("pointerup", (e) => {
-          if (pointerId == null) return;
-          const dy = e.clientY - startY;
-          card.classList.remove("dragging");
-          pointerId = null;
-          if (Math.abs(dy) < 36) return;
-          const to = dy < 0 ? Math.max(0, index - 1) : Math.min(images.length - 1, index + 1);
-          if (to === index) return;
-          const [item] = images.splice(index, 1);
-          images.splice(to, 0, item);
-          setStatus("จัดเรียงแล้ว — อย่าลืมกดดาวน์โหลดลำดับใหม่");
-          render();
-        });
-        card.addEventListener("pointercancel", () => {
-          pointerId = null;
-          card.classList.remove("dragging");
-        });
+
+        if (orderingOn) {
+          card.addEventListener("dragstart", (e) => {
+            dragFrom = index;
+            card.classList.add("dragging");
+            e.dataTransfer.effectAllowed = "move";
+            e.dataTransfer.setData("text/plain", String(index));
+          });
+          card.addEventListener("dragend", () => {
+            dragFrom = -1;
+            card.classList.remove("dragging");
+            grid.querySelectorAll(".drag-over").forEach((el) => el.classList.remove("drag-over"));
+          });
+          card.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            card.classList.add("drag-over");
+          });
+          card.addEventListener("dragleave", () => card.classList.remove("drag-over"));
+          card.addEventListener("drop", (e) => {
+            e.preventDefault();
+            card.classList.remove("drag-over");
+            const from = Number(e.dataTransfer.getData("text/plain"));
+            const to = index;
+            if (Number.isNaN(from) || from === to) return;
+            const [moved] = items.splice(from, 1);
+            items.splice(to, 0, moved);
+            setStatus("จัดเรียงแล้ว — กดดาวน์โหลดลำดับใหม่เพื่อบันทึก");
+            render();
+          });
+        }
 
         grid.appendChild(card);
       });
     };
 
     const downloadManifest = () => {
-      const payload = JSON.stringify({ images }, null, 2);
-      const blob = new Blob([payload + "\n"], { type: "application/json" });
+      const payload = { images: items.map((i) => i.file) };
+      const blob = new Blob([JSON.stringify(payload, null, 2) + "\n"], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -310,34 +399,67 @@
     };
 
     document.getElementById("btn-save").addEventListener("click", downloadManifest);
-    document.getElementById("btn-save-2").addEventListener("click", downloadManifest);
-
-    document.getElementById("btn-add").addEventListener("click", () => {
-      const name = normalize(input.value);
-      if (!name) {
-        setStatus("พิมพ์ชื่อไฟล์ก่อน เช่น 09.jpg");
-        return;
-      }
-      if (images.includes(name)) {
-        setStatus("มีชื่อนี้อยู่แล้ว");
-        return;
-      }
-      images.push(name);
-      input.value = "";
-      setStatus(`เพิ่ม ${name} แล้ว — อย่าลืมอัปโหลดไฟล์รูปจริงเข้า images/gallery/ ด้วย`);
+    document.getElementById("btn-select-all").addEventListener("click", () => {
+      items.forEach((i) => (i.selected = true));
       render();
+    });
+    document.getElementById("btn-deselect-all").addEventListener("click", () => {
+      items.forEach((i) => (i.selected = false));
+      render();
+    });
+    document.getElementById("btn-delete").addEventListener("click", () => {
+      const before = items.length;
+      items = items.filter((i) => !i.selected);
+      setStatus(`ลบออกจากรายการ ${before - items.length} รูป`);
+      render();
+    });
+    smartToggle.addEventListener("change", () => {
+      setStatus(smartToggle.checked ? "Smart ordering เปิด — ลากรูปเพื่อเรียงได้" : "Smart ordering ปิด");
+      render();
+    });
+
+    fileInput.addEventListener("change", () => {
+      const files = Array.from(fileInput.files || []);
+      files.forEach((file) => {
+        const name = normalize(file.name);
+        if (!name || items.some((i) => i.file === name)) return;
+        items.push({
+          file: name,
+          src: URL.createObjectURL(file),
+          selected: false,
+          local: true,
+        });
+      });
+      fileInput.value = "";
+      setStatus(`เพิ่ม ${files.length} รูปในรายการ — อย่าลืมอัปโหลดไฟล์จริงเข้า images/gallery/ ด้วย`);
+      render();
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest(".card")) {
+        grid.querySelectorAll(".menu-open").forEach((el) => el.classList.remove("menu-open"));
+      }
     });
 
     fetch("images/gallery/manifest.json", { cache: "no-store" })
       .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then((data) => {
-        images = Array.isArray(data.images) ? data.images.map(normalize) : FALLBACK.slice();
-        setStatus(`โหลด ${images.length} รูปแล้ว — ลากเพื่อเรียงได้เลย`);
+        const list = Array.isArray(data.images) ? data.images : FALLBACK;
+        items = list.map((file) => ({
+          file: normalize(file),
+          src: `images/gallery/${normalize(file)}`,
+          selected: false,
+        }));
+        setStatus(`โหลด ${items.length} รูปแล้ว — เปิด Smart ordering แล้ว ลากเพื่อเรียงได้`);
         render();
       })
       .catch(() => {
-        images = FALLBACK.slice();
-        setStatus(`ใช้รายการเริ่มต้น ${images.length} รูป`);
+        items = FALLBACK.map((file) => ({
+          file,
+          src: `images/gallery/${file}`,
+          selected: false,
+        }));
+        setStatus(`ใช้รายการเริ่มต้น ${items.length} รูป`);
         render();
       });
   </script>
