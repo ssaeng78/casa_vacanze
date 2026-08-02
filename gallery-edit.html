@@ -251,7 +251,12 @@
   </main>
 
   <script>
-    const FALLBACK = ["01.jpg","02.jpg","03.jpg","04.jpg","05.jpg","06.jpg","07.jpg","08.jpg"];
+    const FALLBACK = [
+      "images/bedroom-family-1.jpg",
+      "images/bedroom-semicircle-1.jpg",
+      "images/pool-garden-view.jpg",
+      "images/living.jpg"
+    ];
     const grid = document.getElementById("grid");
     const statusEl = document.getElementById("status");
     const smartToggle = document.getElementById("smart-ordering");
@@ -266,7 +271,14 @@
       statusEl.classList.toggle("ok", ok);
     };
 
-    const normalize = (name) => name.replace(/^.*[\\/]/, "").trim();
+    const basename = (name) => name.replace(/^.*[\\/]/, "").trim();
+    const toPath = (file) => {
+      const cleaned = String(file || "").trim().replace(/^\.\//, "");
+      if (!cleaned) return "";
+      if (cleaned.startsWith("images/")) return cleaned;
+      return `images/gallery/${basename(cleaned)}`;
+    };
+    const labelOf = (file) => toPath(file).replace(/^images\//, "");
 
     const moveIcon = `
       <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -286,11 +298,11 @@
         card.className = "card" + (item.selected ? " selected" : "");
         card.draggable = orderingOn;
         card.dataset.index = String(index);
-        const size = item.w && item.h ? `${item.w} x ${item.h}px` : item.file;
+        const size = item.w && item.h ? `${item.w} x ${item.h}px` : labelOf(item.file);
         card.innerHTML = `
-          <img src="${item.src}" alt="${item.file}" loading="lazy">
+          <img src="${item.src}" alt="${labelOf(item.file)}" loading="lazy">
           <div class="shade"></div>
-          <button class="check" type="button" aria-label="เลือก ${item.file}">${checkIcon}</button>
+          <button class="check" type="button" aria-label="เลือก ${labelOf(item.file)}">${checkIcon}</button>
           <button class="options" type="button">Options ↕</button>
           <div class="options-menu">
             <button type="button" data-act="up">Move up</button>
@@ -420,17 +432,17 @@
     fileInput.addEventListener("change", () => {
       const files = Array.from(fileInput.files || []);
       files.forEach((file) => {
-        const name = normalize(file.name);
-        if (!name || items.some((i) => i.file === name)) return;
+        const path = toPath(file.name);
+        if (!path || items.some((i) => i.file === path)) return;
         items.push({
-          file: name,
+          file: path,
           src: URL.createObjectURL(file),
           selected: false,
           local: true,
         });
       });
       fileInput.value = "";
-      setStatus(`เพิ่ม ${files.length} รูปในรายการ — อย่าลืมอัปโหลดไฟล์จริงเข้า images/gallery/ ด้วย`);
+      setStatus(`เพิ่ม ${files.length} รูปในรายการ — อย่าลืมอัปโหลดไฟล์จริงเข้าโฟลเดอร์ images/ ด้วย`);
       render();
     });
 
@@ -444,18 +456,17 @@
       .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then((data) => {
         const list = Array.isArray(data.images) ? data.images : FALLBACK;
-        items = list.map((file) => ({
-          file: normalize(file),
-          src: `images/gallery/${normalize(file)}`,
-          selected: false,
-        }));
+        items = list.map((file) => {
+          const path = toPath(file);
+          return { file: path, src: path, selected: false };
+        });
         setStatus(`โหลด ${items.length} รูปแล้ว — เปิด Smart ordering แล้ว ลากเพื่อเรียงได้`);
         render();
       })
       .catch(() => {
         items = FALLBACK.map((file) => ({
           file,
-          src: `images/gallery/${file}`,
+          src: file,
           selected: false,
         }));
         setStatus(`ใช้รายการเริ่มต้น ${items.length} รูป`);
