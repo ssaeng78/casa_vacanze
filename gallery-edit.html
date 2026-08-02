@@ -295,6 +295,56 @@
     /** @type {number[]} */
     let dragIndices = [];
     let lastCheckedIndex = -1;
+    let autoScrollRaf = 0;
+    let autoScrollY = null;
+    let isAutoScrolling = false;
+
+    const EDGE_PX = 90;
+    const MAX_SCROLL_SPEED = 28;
+
+    const stopAutoScroll = () => {
+      isAutoScrolling = false;
+      autoScrollY = null;
+      if (autoScrollRaf) {
+        cancelAnimationFrame(autoScrollRaf);
+        autoScrollRaf = 0;
+      }
+      document.removeEventListener("dragover", onDragAutoScrollMove);
+    };
+
+    const tickAutoScroll = () => {
+      autoScrollRaf = 0;
+      if (!isAutoScrolling || autoScrollY == null) return;
+
+      const y = autoScrollY;
+      const h = window.innerHeight || document.documentElement.clientHeight;
+      let dy = 0;
+
+      if (y < EDGE_PX) {
+        const t = 1 - y / EDGE_PX;
+        dy = -Math.ceil(MAX_SCROLL_SPEED * t * t);
+      } else if (y > h - EDGE_PX) {
+        const t = 1 - (h - y) / EDGE_PX;
+        dy = Math.ceil(MAX_SCROLL_SPEED * t * t);
+      }
+
+      if (dy) window.scrollBy(0, dy);
+      autoScrollRaf = requestAnimationFrame(tickAutoScroll);
+    };
+
+    const onDragAutoScrollMove = (e) => {
+      // Keep the drag session alive even over empty gaps.
+      e.preventDefault();
+      autoScrollY = e.clientY;
+      if (!autoScrollRaf) autoScrollRaf = requestAnimationFrame(tickAutoScroll);
+    };
+
+    const startAutoScroll = () => {
+      stopAutoScroll();
+      isAutoScrolling = true;
+      document.addEventListener("dragover", onDragAutoScrollMove, { passive: false });
+      autoScrollRaf = requestAnimationFrame(tickAutoScroll);
+    };
 
     const setStatus = (msg, ok = false) => {
       statusEl.textContent = msg;
@@ -533,9 +583,12 @@
             e.dataTransfer.setData("text/plain", payload);
             e.dataTransfer.setData("text", payload);
             setDragGhost(e, count);
+            startAutoScroll();
+            autoScrollY = e.clientY;
             setStatus(count > 1 ? `กำลังลาก ${count} รูปพร้อมกัน...` : "กำลังลาก 1 รูป...");
           });
           card.addEventListener("dragend", () => {
+            stopAutoScroll();
             dragIndices = [];
             grid.querySelectorAll(".dragging, .drag-group, .drag-over").forEach((el) => {
               el.classList.remove("dragging", "drag-group", "drag-over");
@@ -545,6 +598,7 @@
           card.addEventListener("dragover", (e) => {
             e.preventDefault();
             e.dataTransfer.dropEffect = "move";
+            autoScrollY = e.clientY;
             if (dragIndices.includes(index)) return;
             card.classList.add("drag-over");
           });
