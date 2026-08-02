@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>จัดเรียงแกลเลอรี — Casa Vacanze</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --pine: #073d37;
+      --cream: #f7f0e3;
+      --paper: #fbf7ef;
+      --gold: #c39135;
+      --ink: #18332e;
+      --muted: #687771;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: "Noto Sans Thai", sans-serif;
+      line-height: 1.55;
+    }
+    .wrap { width: min(1100px, calc(100% - 32px)); margin: auto; }
+    a { color: inherit; }
+    header {
+      position: sticky; top: 0; z-index: 10;
+      background: rgba(251, 247, 239, 0.95);
+      border-bottom: 1px solid rgba(7, 61, 55, 0.1);
+      backdrop-filter: blur(12px);
+    }
+    .bar {
+      min-height: 72px;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    }
+    .brand { font: 1.25rem "DM Serif Display", serif; text-decoration: none; }
+    .brand small {
+      display: block; margin-top: 2px;
+      color: var(--muted); font: 700 0.68rem/1.3 "Noto Sans Thai", sans-serif;
+      letter-spacing: 0.06em; text-transform: uppercase;
+    }
+    .links { display: flex; gap: 10px; flex-wrap: wrap; }
+    .links a, .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-height: 42px; padding: 0 16px; border-radius: 8px;
+      border: 1px solid rgba(7, 61, 55, 0.18);
+      background: #fff; color: var(--pine);
+      font: 700 0.92rem "Noto Sans Thai", sans-serif;
+      text-decoration: none; cursor: pointer;
+    }
+    .btn.primary {
+      background: var(--pine); color: #fff; border-color: var(--pine);
+    }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .hero { padding: 34px 0 18px; }
+    h1 {
+      margin: 0 0 8px;
+      font: clamp(1.9rem, 4vw, 2.8rem)/1.1 "DM Serif Display", serif;
+    }
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 18px 0 8px;
+    }
+    .step {
+      padding: 14px 16px;
+      background: var(--cream);
+      border: 1px solid rgba(195, 145, 53, 0.28);
+      border-radius: 12px;
+      font-size: 0.9rem;
+    }
+    .step b { display: block; color: var(--gold); margin-bottom: 4px; font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; }
+    .toolbar {
+      display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+      margin: 18px 0 14px;
+    }
+    .toolbar input[type="text"] {
+      flex: 1 1 220px; min-height: 42px; padding: 0 14px;
+      border: 1px solid rgba(7, 61, 55, 0.18); border-radius: 8px;
+      font: 500 0.95rem "Noto Sans Thai", sans-serif; background: #fff;
+    }
+    .status {
+      min-height: 1.4em; color: var(--muted); font-size: 0.9rem; margin-bottom: 12px;
+    }
+    .status.ok { color: #0a7a3e; font-weight: 700; }
+    .sort-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      padding-bottom: 80px;
+    }
+    .card {
+      position: relative;
+      background: #fff;
+      border: 1px solid rgba(7, 61, 55, 0.14);
+      border-radius: 14px;
+      overflow: hidden;
+      touch-action: none;
+      user-select: none;
+      cursor: grab;
+      box-shadow: 0 8px 22px rgba(15, 46, 40, 0.06);
+    }
+    .card.dragging {
+      opacity: 0.45;
+      cursor: grabbing;
+    }
+    .card.drag-over {
+      outline: 2px solid var(--gold);
+      outline-offset: 2px;
+    }
+    .card .thumb {
+      aspect-ratio: 1;
+      background: #e8dfcf;
+    }
+    .card .thumb img {
+      display: block; width: 100%; height: 100%; object-fit: cover;
+      pointer-events: none;
+    }
+    .card .meta {
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      padding: 10px 10px 12px;
+    }
+    .card .name {
+      font-size: 0.78rem; color: var(--muted);
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .card .num {
+      position: absolute; top: 8px; left: 8px;
+      min-width: 28px; height: 28px; padding: 0 7px;
+      display: grid; place-items: center;
+      border-radius: 999px; background: rgba(3, 30, 28, 0.78); color: #fff;
+      font: 700 0.78rem/1 "Noto Sans Thai", sans-serif;
+    }
+    .card .actions { display: flex; gap: 4px; }
+    .card .actions button {
+      width: 32px; height: 32px; border: 0; border-radius: 8px;
+      background: rgba(7, 61, 55, 0.08); color: var(--pine);
+      font-size: 1rem; cursor: pointer;
+    }
+    .hint {
+      color: var(--muted); font-size: 0.88rem; margin: 0 0 18px;
+    }
+    @media (max-width: 800px) {
+      .steps { grid-template-columns: 1fr; }
+      .sort-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+      .bar { padding: 10px 0; align-items: flex-start; flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap bar">
+      <a class="brand" href="gallery.html">Gallery Editor<small>Casa Vacanze</small></a>
+      <div class="links">
+        <a href="gallery.html">ดูหน้าแกลเลอรี</a>
+        <button class="btn primary" id="btn-save" type="button">ดาวน์โหลดลำดับใหม่</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <h1>จัดเรียงรูปด้วยการลากวาง</h1>
+      <p class="hint">ลากการ์ดรูปไปวางตำแหน่งใหม่ได้เลย บนมือถือใช้ปุ่ม ↑ ↓ ได้เช่นกัน</p>
+      <div class="steps">
+        <div class="step"><b>ขั้นที่ 1</b>ลากเรียงรูปตามลำดับที่ต้องการ</div>
+        <div class="step"><b>ขั้นที่ 2</b>กด “ดาวน์โหลดลำดับใหม่” จะได้ไฟล์ <code>manifest.json</code></div>
+        <div class="step"><b>ขั้นที่ 3</b>อัปโหลดไฟล์นั้นทับใน GitHub ที่โฟลเดอร์ <code>images/gallery/</code></div>
+      </div>
+    </section>
+
+    <div class="toolbar">
+      <input id="new-file" type="text" placeholder="เพิ่มชื่อไฟล์ เช่น 09.jpg (ต้องอัปโหลดรูปเข้า images/gallery/ แล้ว)" />
+      <button class="btn" id="btn-add" type="button">เพิ่มรูป</button>
+      <button class="btn primary" id="btn-save-2" type="button">ดาวน์โหลดลำดับใหม่</button>
+    </div>
+    <div class="status" id="status">กำลังโหลดรายการรูป...</div>
+    <div class="sort-grid" id="sort-grid" aria-label="ลากเพื่อเรียงรูป"></div>
+  </main>
+
+  <script>
+    const FALLBACK = ["01.jpg","02.jpg","03.jpg","04.jpg","05.jpg","06.jpg","07.jpg","08.jpg"];
+    const grid = document.getElementById("sort-grid");
+    const statusEl = document.getElementById("status");
+    const input = document.getElementById("new-file");
+    let images = [];
+    let dragFrom = -1;
+
+    const setStatus = (msg, ok = false) => {
+      statusEl.textContent = msg;
+      statusEl.classList.toggle("ok", ok);
+    };
+
+    const normalize = (name) => name.replace(/^.*[\\/]/, "").trim();
+
+    const render = () => {
+      grid.innerHTML = "";
+      images.forEach((file, index) => {
+        const card = document.createElement("article");
+        card.className = "card";
+        card.draggable = true;
+        card.dataset.index = String(index);
+        card.innerHTML = `
+          <span class="num">${index + 1}</span>
+          <div class="thumb"><img src="images/gallery/${file}" alt="${file}" loading="lazy"></div>
+          <div class="meta">
+            <span class="name" title="${file}">${file}</span>
+            <div class="actions">
+              <button type="button" data-act="up" aria-label="เลื่อนขึ้น">↑</button>
+              <button type="button" data-act="down" aria-label="เลื่อนลง">↓</button>
+              <button type="button" data-act="remove" aria-label="ลบออกจากรายการ">×</button>
+            </div>
+          </div>
+        `;
+
+        card.addEventListener("dragstart", (e) => {
+          dragFrom = index;
+          card.classList.add("dragging");
+          e.dataTransfer.effectAllowed = "move";
+          e.dataTransfer.setData("text/plain", String(index));
+        });
+        card.addEventListener("dragend", () => {
+          dragFrom = -1;
+          card.classList.remove("dragging");
+          grid.querySelectorAll(".drag-over").forEach((el) => el.classList.remove("drag-over"));
+        });
+        card.addEventListener("dragover", (e) => {
+          e.preventDefault();
+          card.classList.add("drag-over");
+        });
+        card.addEventListener("dragleave", () => card.classList.remove("drag-over"));
+        card.addEventListener("drop", (e) => {
+          e.preventDefault();
+          card.classList.remove("drag-over");
+          const from = Number(e.dataTransfer.getData("text/plain"));
+          const to = index;
+          if (Number.isNaN(from) || from === to) return;
+          const [item] = images.splice(from, 1);
+          images.splice(to, 0, item);
+          setStatus(`จัดเรียงแล้ว — อย่าลืมกดดาวน์โหลดลำดับใหม่`);
+          render();
+        });
+
+        card.querySelectorAll("button[data-act]").forEach((btn) => {
+          btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const act = btn.dataset.act;
+            if (act === "up" && index > 0) {
+              [images[index - 1], images[index]] = [images[index], images[index - 1]];
+              setStatus("เลื่อนขึ้นแล้ว");
+              render();
+            } else if (act === "down" && index < images.length - 1) {
+              [images[index + 1], images[index]] = [images[index], images[index + 1]];
+              setStatus("เลื่อนลงแล้ว");
+              render();
+            } else if (act === "remove") {
+              images.splice(index, 1);
+              setStatus(`เอา ${file} ออกจากรายการแล้ว`);
+              render();
+            }
+          });
+        });
+
+        // Touch-friendly pointer drag
+        let pointerId = null;
+        let startY = 0;
+        card.addEventListener("pointerdown", (e) => {
+          if (e.target.closest("button")) return;
+          pointerId = e.pointerId;
+          startY = e.clientY;
+          card.setPointerCapture(pointerId);
+          card.classList.add("dragging");
+        });
+        card.addEventListener("pointerup", (e) => {
+          if (pointerId == null) return;
+          const dy = e.clientY - startY;
+          card.classList.remove("dragging");
+          pointerId = null;
+          if (Math.abs(dy) < 36) return;
+          const to = dy < 0 ? Math.max(0, index - 1) : Math.min(images.length - 1, index + 1);
+          if (to === index) return;
+          const [item] = images.splice(index, 1);
+          images.splice(to, 0, item);
+          setStatus("จัดเรียงแล้ว — อย่าลืมกดดาวน์โหลดลำดับใหม่");
+          render();
+        });
+        card.addEventListener("pointercancel", () => {
+          pointerId = null;
+          card.classList.remove("dragging");
+        });
+
+        grid.appendChild(card);
+      });
+    };
+
+    const downloadManifest = () => {
+      const payload = JSON.stringify({ images }, null, 2);
+      const blob = new Blob([payload + "\n"], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "manifest.json";
+      a.click();
+      URL.revokeObjectURL(url);
+      setStatus("ดาวน์โหลด manifest.json แล้ว — อัปโหลดทับใน images/gallery/ บน GitHub", true);
+    };
+
+    document.getElementById("btn-save").addEventListener("click", downloadManifest);
+    document.getElementById("btn-save-2").addEventListener("click", downloadManifest);
+
+    document.getElementById("btn-add").addEventListener("click", () => {
+      const name = normalize(input.value);
+      if (!name) {
+        setStatus("พิมพ์ชื่อไฟล์ก่อน เช่น 09.jpg");
+        return;
+      }
+      if (images.includes(name)) {
+        setStatus("มีชื่อนี้อยู่แล้ว");
+        return;
+      }
+      images.push(name);
+      input.value = "";
+      setStatus(`เพิ่ม ${name} แล้ว — อย่าลืมอัปโหลดไฟล์รูปจริงเข้า images/gallery/ ด้วย`);
+      render();
+    });
+
+    fetch("images/gallery/manifest.json", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((data) => {
+        images = Array.isArray(data.images) ? data.images.map(normalize) : FALLBACK.slice();
+        setStatus(`โหลด ${images.length} รูปแล้ว — ลากเพื่อเรียงได้เลย`);
+        render();
+      })
+      .catch(() => {
+        images = FALLBACK.slice();
+        setStatus(`ใช้รายการเริ่มต้น ${images.length} รูป`);
+        render();
+      });
+  </script>
+</body>
+</html>

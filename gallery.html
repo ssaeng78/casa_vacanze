@@ -249,6 +249,9 @@
         <div class="kicker">Casa Vacanze</div>
         <h1>Gallery<span>แกลเลอรีภาพบ้านพัก</span></h1>
         <p class="lead">แตะรูปเพื่อขยาย — แตะอีกครั้งเพื่อย่อกลับ</p>
+        <p class="lead" style="margin-top:10px;font-size:.88rem">
+          <a href="gallery-edit.html" style="color:var(--gold);font-weight:700;text-decoration:underline;text-underline-offset:3px">จัดเรียงรูปแบบลากวาง →</a>
+        </p>
       </div>
     </section>
 
@@ -266,22 +269,13 @@
   </div>
 
   <script>
-    // ใส่ชื่อไฟล์รูปในโฟลเดอร์ images/gallery/ ที่นี่
-    // อัปโหลดรูปเข้า images/gallery/ แล้วเพิ่มชื่อไฟล์ในรายการนี้
-    const GALLERY_IMAGES = [
-      "images/gallery/01.jpg",
-      "images/gallery/02.jpg",
-      "images/gallery/03.jpg",
-      "images/gallery/04.jpg",
-      "images/gallery/05.jpg",
-      "images/gallery/06.jpg",
-      "images/gallery/07.jpg",
-      "images/gallery/08.jpg"
-    ];
-
     const grid = document.getElementById("photo-grid");
     const box = document.getElementById("lightbox");
     const image = document.getElementById("lightbox-image");
+    const FALLBACK_IMAGES = [
+      "01.jpg", "02.jpg", "03.jpg", "04.jpg",
+      "05.jpg", "06.jpg", "07.jpg", "08.jpg"
+    ];
 
     const openLightbox = (src, alt) => {
       image.src = src;
@@ -299,16 +293,24 @@
       image.alt = "";
     };
 
-    GALLERY_IMAGES.forEach((src, index) => {
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.setAttribute("aria-label", `ขยายรูปที่ ${index + 1}`);
-      btn.innerHTML = `<img src="${src}" alt="Gallery photo ${index + 1}" loading="lazy">`;
-      btn.addEventListener("click", () => openLightbox(src, `Gallery photo ${index + 1}`));
-      grid.appendChild(btn);
-    });
+    const renderGallery = (filenames) => {
+      grid.innerHTML = "";
+      filenames.forEach((file, index) => {
+        const src = file.startsWith("images/") ? file : `images/gallery/${file}`;
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.setAttribute("aria-label", `ขยายรูปที่ ${index + 1}`);
+        btn.innerHTML = `<img src="${src}" alt="Gallery photo ${index + 1}" loading="lazy">`;
+        btn.addEventListener("click", () => openLightbox(src, `Gallery photo ${index + 1}`));
+        grid.appendChild(btn);
+      });
+    };
 
-    // กดรูปที่ขยาย หรือพื้นดำ = ย่อกลับ
+    fetch("images/gallery/manifest.json", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((data) => renderGallery(Array.isArray(data.images) ? data.images : FALLBACK_IMAGES))
+      .catch(() => renderGallery(FALLBACK_IMAGES));
+
     box.addEventListener("click", closeLightbox);
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && box.classList.contains("open")) closeLightbox();
