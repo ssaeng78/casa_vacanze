@@ -418,6 +418,16 @@
       .gallery.shots-4 .shot:first-child {
         grid-row: span 3;
       }
+      .gallery.shots-5 {
+        grid-template-columns: 1.24fr 0.76fr;
+        grid-template-rows: 170px 170px 170px minmax(200px, 28vw);
+      }
+      .gallery.shots-5 .shot:first-child {
+        grid-row: span 3;
+      }
+      .gallery.shots-5 .shot:nth-child(5) {
+        grid-column: span 2;
+      }
       .plan {
         padding: 88px 0;
         background: var(--ivory);
@@ -646,6 +656,9 @@
         }
         .gallery.shots-4 {
           grid-template-rows: 220px 120px 120px;
+        }
+        .gallery.shots-5 {
+          grid-template-rows: 180px 110px 110px minmax(180px, 42vw);
         }
         .copy {
           max-width: none;
@@ -946,7 +959,7 @@
       </section>
       <section class="space alt reverse" id="semicircle">
         <div class="wrap space-grid">
-          <div class="gallery shots-4">
+          <div class="gallery shots-5">
             <figure class="shot">
               <button
                 data-image="images/bedroom-semicircle-1.jpg"
@@ -998,6 +1011,19 @@
                 />
               </button>
               <figcaption>ภายนอกอาคาร</figcaption>
+            </figure>
+            <figure class="shot">
+              <button
+                data-image="images/bedroom-semicircle-location.jpg"
+                data-alt="ตำแหน่งห้องนอนครึ่งวงกลมบนตัวบ้าน"
+              >
+                <img
+                  src="images/bedroom-semicircle-location.jpg"
+                  alt="ตำแหน่งห้องนอนครึ่งวงกลมบนตัวบ้าน"
+                  loading="lazy"
+                />
+              </button>
+              <figcaption>ตำแหน่งบนบ้าน</figcaption>
             </figure>
           </div>
           <div class="copy">
