@@ -411,6 +411,13 @@
       .outdoor-grid .shot:nth-child(4) {
         grid-column: span 2;
       }
+      .gallery.shots-4 {
+        grid-template-columns: 1.24fr 0.76fr;
+        grid-template-rows: 180px 180px 180px;
+      }
+      .gallery.shots-4 .shot:first-child {
+        grid-row: span 3;
+      }
       .plan {
         padding: 88px 0;
         background: var(--ivory);
@@ -637,6 +644,9 @@
         .gallery {
           grid-template-rows: 260px 142px;
         }
+        .gallery.shots-4 {
+          grid-template-rows: 220px 120px 120px;
+        }
         .copy {
           max-width: none;
         }
@@ -861,7 +871,8 @@
         </div>
       </section>
       <nav class="room-nav" aria-label="เลือกพื้นที่ภายในบ้าน">
-        <a href="#master">ห้องนอน 1</a><a href="#family">ห้องนอน 2</a
+        <a href="#master">ห้องนอน 1</a
+        ><a href="#semicircle">ห้องนอนครึ่งวงกลม</a
         ><a href="#kitchen">ห้องครัว</a><a href="#living">ห้องนั่งเล่น</a
         ><a href="#dining">พื้นที่รับประทานอาหาร</a
         ><a href="#pool">สวนและสระว่ายน้ำ</a><a href="#views">วิวภายนอก</a>
@@ -933,52 +944,65 @@
           </div>
         </div>
       </section>
-      <section class="space alt reverse" id="family">
+      <section class="space alt reverse" id="semicircle">
         <div class="wrap space-grid">
-          <div class="gallery">
+          <div class="gallery shots-4">
             <figure class="shot">
               <button
-                data-image="images/view-brick-wing.jpg"
-                data-alt="อาคารครึ่งวงกลมของห้องนอน 2"
+                data-image="images/bedroom-semicircle-1.jpg"
+                data-alt="ห้องนอนครึ่งวงกลมพร้อมเตียงคู่"
               >
                 <img
-                  src="images/view-brick-wing.jpg"
-                  alt="อาคารครึ่งวงกลมของห้องนอน 2"
+                  src="images/bedroom-semicircle-1.jpg"
+                  alt="ห้องนอนครึ่งวงกลมพร้อมเตียงคู่"
                   loading="lazy"
                 />
               </button>
-              <figcaption>อาคารครึ่งวงกลม</figcaption>
+              <figcaption>ห้องนอนครึ่งวงกลม</figcaption>
             </figure>
             <figure class="shot">
               <button
-                data-image="images/view-misty-villa.jpg"
-                data-alt="ตำแหน่งห้องนอน 2 บนตัวบ้าน"
+                data-image="images/bedroom-semicircle-2.jpg"
+                data-alt="กระจกรอบครึ่งวงกลมมองเห็นสวนรอบบ้าน"
               >
                 <img
-                  src="images/view-misty-villa.jpg"
-                  alt="ตำแหน่งห้องนอน 2 บนตัวบ้าน"
+                  src="images/bedroom-semicircle-2.jpg"
+                  alt="กระจกรอบครึ่งวงกลมมองเห็นสวนรอบบ้าน"
                   loading="lazy"
                 />
               </button>
-              <figcaption>ตำแหน่งบนบ้าน</figcaption>
+              <figcaption>กระจกรอบห้อง</figcaption>
             </figure>
             <figure class="shot">
               <button
-                data-image="images/villa-aerial.jpg"
-                data-alt="มุมสูงเห็นปีกครึ่งวงกลมของห้องนอน 2"
+                data-image="images/bedroom-semicircle-bath.jpg"
+                data-alt="ห้องน้ำส่วนตัวของห้องนอนครึ่งวงกลม"
               >
                 <img
-                  src="images/villa-aerial.jpg"
-                  alt="มุมสูงเห็นปีกครึ่งวงกลมของห้องนอน 2"
+                  src="images/bedroom-semicircle-bath.jpg"
+                  alt="ห้องน้ำส่วนตัวของห้องนอนครึ่งวงกลม"
                   loading="lazy"
                 />
               </button>
-              <figcaption>วิวรอบบ้าน</figcaption>
+              <figcaption>ห้องน้ำส่วนตัว</figcaption>
+            </figure>
+            <figure class="shot">
+              <button
+                data-image="images/bedroom-semicircle-exterior.jpg"
+                data-alt="ภายนอกอาคารครึ่งวงกลม"
+              >
+                <img
+                  src="images/bedroom-semicircle-exterior.jpg"
+                  alt="ภายนอกอาคารครึ่งวงกลม"
+                  loading="lazy"
+                />
+              </button>
+              <figcaption>ภายนอกอาคาร</figcaption>
             </figure>
           </div>
           <div class="copy">
             <div class="eyebrow">02 · Bedroom</div>
-            <h2>ห้องนอน 2<span>Bedroom 2</span></h2>
+            <h2>ห้องนอนครึ่งวงกลม<span>Semi-circular Bedroom</span></h2>
             <p>
               ห้องนอนขนาดกำลังพอดี เตียงคู่นุ่มสบาย
               ในอาคารครึ่งวงกลมพร้อมห้องน้ำส่วนตัว
