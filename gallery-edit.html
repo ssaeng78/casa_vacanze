@@ -275,6 +275,9 @@
       <b>ย้ายหลายรูปพร้อมกัน:</b>
       1) ติ๊กเลือกหลายรูป &nbsp; 2) <b>ลากรูปที่เลือก</b> ไปวางจุดหมาย หรือ <b>คลิกรูปปลายทาง</b> เพื่อย้ายทั้งกลุ่ม &nbsp; 3) กด <b>บันทึก</b>
       <br>ถ้ารูปใหม่: อัปโหลดไฟล์เข้าโฟลเดอร์ <code>images/</code> บน GitHub ก่อน แล้วค่อย Add photos / เรียงในหน้านี้
+      <br><b>ถ้าบันทึกไม่สำเร็จ:</b> เปิดลิงก์นี้ครั้งเดียวเพื่อเปิดใช้ระบบบันทึก
+      <a href="https://dash.cloudflare.com/claim-preview?claimToken=73W61dVOIn42MuDVdNNCokHko-VMXTLbC7gniumkUjk" target="_blank" rel="noopener">เปิดใช้ระบบบันทึก</a>
+      แล้วกลับมากดบันทึกอีกครั้ง
     </div>
   </main>
 
@@ -632,7 +635,7 @@
 
     const REPO = "ssaeng78/casa_vacanze";
     const MANIFEST_PATH = "images/gallery/manifest.json";
-    const WORKER_URL = "https://casa-gallery-order.fancy-angelfish.workers.dev/";
+    const WORKER_URL = "https://casa-gallery-order.band-soda.workers.dev/";
 
     const postOrder = async (url, images) => {
       const res = await fetch(url, {
@@ -662,7 +665,7 @@
         if (!ok) {
           try { ok = await postOrder("/api/gallery-order", images); } catch (_) { ok = false; }
         }
-        if (!ok) throw new Error("เซิร์ฟเวอร์ยังไม่พร้อมบันทึก");
+        if (!ok) throw new Error("เซิร์ฟเวอร์ยังไม่พร้อม — เปิดลิงก์เปิดใช้ระบบบันทึกก่อน (ดูด้านล่าง)");
         setStatus("บันทึกแล้ว — หน้าแกลเลอรีใช้ลำดับใหม่ได้ทันที", true);
       } catch (err) {
         setStatus(`บันทึกไม่สำเร็จ: ${err.message || err}`);

@@ -26,7 +26,7 @@ jobs:
             const path = 'images/gallery/manifest.json';
             const endpoints = [
               'https://casa-vacanze.pages.dev/api/gallery-order',
-              'https://casa-gallery-order.fancy-angelfish.workers.dev/',
+              'https://casa-gallery-order.band-soda.workers.dev/',
             ];
 
             let images = null;

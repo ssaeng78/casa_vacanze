@@ -2,7 +2,7 @@ const REPO = "ssaeng78/casa_vacanze";
 const PATH = "images/gallery/manifest.json";
 const BRANCH = "main";
 const UA = "casa-vacanze-gallery";
-const WORKER_URL = "https://casa-gallery-order.fancy-angelfish.workers.dev/";
+const WORKER_URL = "https://casa-gallery-order.band-soda.workers.dev/";
 
 const json = (data, status = 200) =>
   new Response(JSON.stringify(data), {
