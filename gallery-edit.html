@@ -100,6 +100,16 @@
       min-height: 1.4em; margin: 0 0 14px; color: var(--muted); font-size: 0.9rem;
     }
     .status.ok { color: #0a7a3e; font-weight: 700; }
+    .selection-bar {
+      display: none;
+      align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+      margin: 0 0 14px; padding: 12px 14px;
+      border-radius: 12px; background: var(--blue-soft); color: var(--ink);
+      font-size: 0.92rem; font-weight: 600;
+    }
+    .selection-bar.show { display: flex; }
+    .selection-bar .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .selection-bar .btn.primary { padding: 8px 12px; }
     .grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -250,11 +260,19 @@
     </div>
 
     <div class="status" id="status">กำลังโหลดรูป...</div>
+    <div class="selection-bar" id="selection-bar">
+      <span id="selection-label">เลือกแล้ว 0 รูป</span>
+      <div class="actions">
+        <button class="btn" id="btn-move-up" type="button">เลื่อนขึ้น</button>
+        <button class="btn" id="btn-move-down" type="button">เลื่อนลง</button>
+        <button class="btn primary" id="btn-clear-sel" type="button">ยกเลิกการเลือก</button>
+      </div>
+    </div>
     <div class="grid ordering-on" id="grid" aria-label="จัดเรียงรูปแกลเลอรี"></div>
 
     <div class="help">
-      <b>วิธีใช้:</b>
-      ติ๊กเลือปรูปทีละหลายรูป (หรือ Shift+คลิกช่องติ๊กเพื่อเลือกช่วง) → ลากรูปที่เลือกไปวางตำแหน่งใหม่พร้อมกัน → กด <b>บันทึก</b>
+      <b>ย้ายหลายรูปพร้อมกัน:</b>
+      1) ติ๊กเลือกหลายรูป &nbsp; 2) <b>ลากรูปที่เลือก</b> ไปวางจุดหมาย หรือ <b>คลิกรูปปลายทาง</b> เพื่อย้ายทั้งกลุ่ม &nbsp; 3) กด <b>บันทึก</b>
       <br>ถ้ารูปใหม่: อัปโหลดไฟล์เข้าโฟลเดอร์ <code>images/</code> บน GitHub ก่อน แล้วค่อย Add photos / เรียงในหน้านี้
     </div>
   </main>
@@ -298,7 +316,23 @@
 
     const checkIcon = `<svg viewBox="0 0 24 24"><path d="M9.2 16.6 4.8 12.2l1.4-1.4 3 3 8.6-8.6 1.4 1.4z"/></svg>`;
 
+    const selectionBar = document.getElementById("selection-bar");
+    const selectionLabel = document.getElementById("selection-label");
+
     const selectedCount = () => items.filter((i) => i.selected).length;
+    const selectedIndices = () =>
+      items.map((it, i) => (it.selected ? i : -1)).filter((i) => i >= 0);
+
+    const refreshSelectionBar = () => {
+      const n = selectedCount();
+      selectionBar.classList.toggle("show", n > 0);
+      selectionLabel.textContent =
+        n > 1
+          ? `เลือกแล้ว ${n} รูป — ลากรูปที่เลือก หรือคลิกจุดหมายเพื่อย้ายพร้อมกัน`
+          : n === 1
+            ? "เลือกแล้ว 1 รูป — ติ๊กเพิ่มรูปอื่นแล้วลากพร้อมกันได้"
+            : "เลือกแล้ว 0 รูป";
+    };
 
     const moveGroupTo = (fromIndices, targetIndex) => {
       const unique = [...new Set(fromIndices)].filter((i) => i >= 0 && i < items.length).sort((a, b) => a - b);
@@ -363,9 +397,11 @@
 
     const render = () => {
       const orderingOn = smartToggle.checked;
+      const selCount = selectedCount();
       grid.classList.toggle("ordering-on", orderingOn);
       grid.classList.toggle("ordering-off", !orderingOn);
       grid.innerHTML = "";
+      refreshSelectionBar();
 
       items.forEach((item, index) => {
         const card = document.createElement("article");
@@ -373,9 +409,13 @@
         card.draggable = orderingOn;
         card.dataset.index = String(index);
         const size = item.w && item.h ? `${item.w} x ${item.h}px` : labelOf(item.file);
-        const hint = orderingOn
-          ? (item.selected && selectedCount() > 1 ? `ลาก ${selectedCount()} รูปพร้อมกัน` : "ลากเพื่อเรียง / ติ๊กเลือกหลายรูป")
-          : "คลิกเพื่อเลือก";
+        let hint = "คลิกเพื่อเลือก";
+        if (orderingOn) {
+          if (item.selected && selCount > 1) hint = `ลาก ${selCount} รูปพร้อมกัน`;
+          else if (!item.selected && selCount > 0) hint = `คลิกเพื่อวาง ${selCount} รูปที่นี่`;
+          else if (item.selected) hint = "ติ๊กเพิ่มรูป แล้วลากพร้อมกัน";
+          else hint = "ติ๊กเลือกหลายรูป แล้วลากพร้อมกัน";
+        }
         card.innerHTML = `
           <img src="${item.src}" alt="${labelOf(item.file)}" loading="lazy">
           <div class="shade"></div>
@@ -412,7 +452,7 @@
           }
           lastCheckedIndex = index;
           const n = selectedCount();
-          setStatus(n ? `เลือกแล้ว ${n} รูป — ลากรูปที่เลือกเพื่อย้ายพร้อมกัน` : "ยกเลิกการเลือกแล้ว");
+          setStatus(n ? `เลือกแล้ว ${n} รูป — ลากรูปที่เลือก หรือคลิกจุดหมาย` : "ยกเลิกการเลือกแล้ว");
           render();
         });
 
@@ -428,9 +468,7 @@
           btn.addEventListener("click", (e) => {
             e.stopPropagation();
             const act = btn.dataset.act;
-            const group = item.selected
-              ? items.map((it, i) => (it.selected ? i : -1)).filter((i) => i >= 0)
-              : [index];
+            const group = item.selected ? selectedIndices() : [index];
 
             if (act === "up") {
               if (!moveGroupBy(group, -1)) return;
@@ -457,16 +495,26 @@
             item.selected = !item.selected;
             lastCheckedIndex = index;
             render();
+            return;
+          }
+          // มีรูปที่เลือกอยู่แล้ว → คลิกจุดหมายเพื่อย้ายทั้งกลุ่ม (ใช้ได้ทั้งมือถือ/คอม)
+          const group = selectedIndices();
+          if (group.length && !item.selected) {
+            const count = group.length;
+            if (!moveGroupTo(group, index)) return;
+            setStatus(
+              count > 1
+                ? `ย้าย ${count} รูปแล้ว — กดบันทึกเพื่ออัปเดตหน้าแกลเลอรี`
+                : "จัดเรียงแล้ว — กดบันทึกเพื่ออัปเดตหน้าแกลเลอรี"
+            );
+            render();
           }
         });
 
         if (orderingOn) {
           card.addEventListener("dragstart", (e) => {
-            if (item.selected) {
-              dragIndices = items.map((it, i) => (it.selected ? i : -1)).filter((i) => i >= 0);
-            } else {
-              dragIndices = [index];
-            }
+            dragIndices = item.selected ? selectedIndices() : [index];
+            // ถ้าลากรูปที่ยังไม่ติ๊ก แต่มีรูปอื่นถูกเลือกอยู่ ให้ย้ายเฉพาะรูปนี้
             const count = dragIndices.length;
             card.classList.add("dragging");
             dragIndices.forEach((i) => {
@@ -480,9 +528,11 @@
               card.appendChild(badge);
             }
             e.dataTransfer.effectAllowed = "move";
-            e.dataTransfer.setData("text/plain", dragIndices.join(","));
+            const payload = dragIndices.join(",");
+            e.dataTransfer.setData("text/plain", payload);
+            e.dataTransfer.setData("text", payload);
             setDragGhost(e, count);
-            setStatus(count > 1 ? `กำลังลาก ${count} รูป...` : "กำลังลาก 1 รูป...");
+            setStatus(count > 1 ? `กำลังลาก ${count} รูปพร้อมกัน...` : "กำลังลาก 1 รูป...");
           });
           card.addEventListener("dragend", () => {
             dragIndices = [];
@@ -493,14 +543,19 @@
           });
           card.addEventListener("dragover", (e) => {
             e.preventDefault();
+            e.dataTransfer.dropEffect = "move";
             if (dragIndices.includes(index)) return;
             card.classList.add("drag-over");
           });
           card.addEventListener("dragleave", () => card.classList.remove("drag-over"));
           card.addEventListener("drop", (e) => {
             e.preventDefault();
+            e.stopPropagation();
             card.classList.remove("drag-over");
-            const raw = e.dataTransfer.getData("text/plain") || dragIndices.join(",");
+            const raw =
+              e.dataTransfer.getData("text/plain") ||
+              e.dataTransfer.getData("text") ||
+              dragIndices.join(",");
             const from = raw.split(",").map(Number).filter((n) => !Number.isNaN(n));
             if (!from.length || (from.length === 1 && from[0] === index)) return;
             if (from.includes(index) && from.length > 1) return;
