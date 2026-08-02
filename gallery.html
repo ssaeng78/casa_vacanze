@@ -327,13 +327,20 @@
     };
 
     const loadGalleryImages = async () => {
-      try {
-        const api = await fetch("/api/gallery-order", { cache: "no-store" });
-        if (api.ok) {
+      const endpoints = [
+        "https://casa-gallery-order.fancy-angelfish.workers.dev/",
+        "/api/gallery-order",
+      ];
+      for (const url of endpoints) {
+        try {
+          const api = await fetch(url, { cache: "no-store", headers: { Accept: "application/json" } });
+          if (!api.ok) continue;
+          const ct = api.headers.get("content-type") || "";
+          if (!ct.includes("application/json")) continue;
           const data = await api.json();
           if (Array.isArray(data.images) && data.images.length) return data.images;
-        }
-      } catch (_) { /* fall through */ }
+        } catch (_) { /* try next */ }
+      }
 
       try {
         const gh = await fetch(

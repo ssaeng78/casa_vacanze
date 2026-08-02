@@ -2,6 +2,7 @@ const REPO = "ssaeng78/casa_vacanze";
 const PATH = "images/gallery/manifest.json";
 const BRANCH = "main";
 const UA = "casa-vacanze-gallery";
+const WORKER_URL = "https://casa-gallery-order.fancy-angelfish.workers.dev/";
 
 const json = (data, status = 200) =>
   new Response(JSON.stringify(data), {
@@ -22,16 +23,15 @@ const ghHeaders = (token) => {
   return headers;
 };
 
-const fetchManifestMeta = async (token) => {
-  const res = await fetch(
-    `https://api.github.com/repos/${REPO}/contents/${PATH}?ref=${BRANCH}`,
-    { headers: ghHeaders(token) }
-  );
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`github_read_${res.status}:${text.slice(0, 200)}`);
-  }
-  return res.json();
+const normalizeImages = (images) => {
+  if (!Array.isArray(images)) return null;
+  const cleaned = images
+    .map((item) => String(item || "").trim().replace(/^\.\//, ""))
+    .filter(Boolean)
+    .map((file) =>
+      file.startsWith("images/") ? file : `images/gallery/${file.replace(/^.*[/\\]/, "")}`
+    );
+  return cleaned.length ? cleaned : null;
 };
 
 const decodeContent = (content) => {
@@ -50,48 +50,130 @@ const encodeContent = (text) => {
   return btoa(binary);
 };
 
-const normalizeImages = (images) => {
-  if (!Array.isArray(images)) return null;
-  const cleaned = images
-    .map((item) => String(item || "").trim().replace(/^\.\//, ""))
-    .filter(Boolean)
-    .map((file) => (file.startsWith("images/") ? file : `images/gallery/${file.replace(/^.*[/\\]/, "")}`));
-  return cleaned.length ? cleaned : null;
-};
+async function readFromWorker() {
+  const res = await fetch(WORKER_URL, {
+    headers: { Accept: "application/json", "User-Agent": UA },
+  });
+  if (!res.ok) return null;
+  const ct = res.headers.get("content-type") || "";
+  if (!ct.includes("application/json")) return null;
+  const data = await res.json();
+  return normalizeImages(data.images);
+}
+
+async function writeToWorker(images) {
+  const res = await fetch(WORKER_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      "User-Agent": UA,
+    },
+    body: JSON.stringify({ images }),
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`worker_${res.status}:${text.slice(0, 120)}`);
+  }
+  const ct = res.headers.get("content-type") || "";
+  if (!ct.includes("application/json")) throw new Error("worker_non_json");
+  const data = await res.json();
+  if (!data.ok) throw new Error(data.error || "worker_failed");
+  return data;
+}
+
+async function readFromGithub(token) {
+  const res = await fetch(
+    `https://api.github.com/repos/${REPO}/contents/${PATH}?ref=${BRANCH}`,
+    { headers: ghHeaders(token) }
+  );
+  if (!res.ok) throw new Error(`github_read_${res.status}`);
+  const meta = await res.json();
+  const parsed = JSON.parse(decodeContent(meta.content));
+  return { images: normalizeImages(parsed.images), sha: meta.sha };
+}
+
+async function writeToGithub(token, images, sha) {
+  const payload = `${JSON.stringify({ images }, null, 2)}\n`;
+  const res = await fetch(`https://api.github.com/repos/${REPO}/contents/${PATH}`, {
+    method: "PUT",
+    headers: { ...ghHeaders(token), "Content-Type": "application/json" },
+    body: JSON.stringify({
+      message: "chore(gallery): update photo order",
+      content: encodeContent(payload),
+      sha,
+      branch: BRANCH,
+    }),
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`github_write_${res.status}:${text.slice(0, 160)}`);
+  }
+  return res.json();
+}
+
+async function readFromKvEnv(env) {
+  const account = env.CF_ACCOUNT_ID;
+  const ns = env.CF_KV_NAMESPACE_ID;
+  const token = env.CF_API_TOKEN;
+  if (!account || !ns || !token) return null;
+  const url = `https://api.cloudflare.com/client/v4/accounts/${account}/storage/kv/namespaces/${ns}/values/order`;
+  const res = await fetch(url, {
+    headers: { Authorization: `Bearer ${token}`, "User-Agent": UA },
+  });
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error(`kv_read_${res.status}`);
+  return normalizeImages(await res.json());
+}
+
+async function writeToKvEnv(env, images) {
+  const account = env.CF_ACCOUNT_ID;
+  const ns = env.CF_KV_NAMESPACE_ID;
+  const token = env.CF_API_TOKEN;
+  if (!account || !ns || !token) return false;
+  const url = `https://api.cloudflare.com/client/v4/accounts/${account}/storage/kv/namespaces/${ns}/values/order`;
+  const res = await fetch(url, {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "text/plain",
+      "User-Agent": UA,
+    },
+    body: JSON.stringify(images),
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`kv_write_${res.status}:${text.slice(0, 160)}`);
+  }
+  return true;
+}
 
 export async function onRequestGet(context) {
   try {
+    try {
+      const images = await readFromKvEnv(context.env);
+      if (images) return json({ images, source: "kv" });
+    } catch (_) {
+      /* fall through */
+    }
+
+    try {
+      const images = await readFromWorker();
+      if (images) return json({ images, source: "worker" });
+    } catch (_) {
+      /* fall through */
+    }
+
     const token = context.env.GITHUB_TOKEN || "";
-    const meta = await fetchManifestMeta(token);
-    const parsed = JSON.parse(decodeContent(meta.content));
-    const images = normalizeImages(parsed.images);
+    const { images } = await readFromGithub(token);
     if (!images) return json({ error: "invalid_manifest" }, 502);
-    return json({ images, sha: meta.sha, source: "github" });
+    return json({ images, source: "github" });
   } catch (err) {
     return json({ error: "read_failed", detail: String(err.message || err) }, 502);
   }
 }
 
 export async function onRequestPost(context) {
-  const token = context.env.GITHUB_TOKEN;
-  if (!token) {
-    return json(
-      {
-        error: "missing_token",
-        message: "ตั้งค่า GITHUB_TOKEN ใน Cloudflare Pages ก่อน (ครั้งเดียว)",
-      },
-      503
-    );
-  }
-
-  const saveKey = context.env.GALLERY_SAVE_KEY;
-  if (saveKey) {
-    const provided = context.request.headers.get("X-Gallery-Key") || "";
-    if (provided !== saveKey) {
-      return json({ error: "unauthorized" }, 401);
-    }
-  }
-
   let body;
   try {
     body = await context.request.json();
@@ -102,36 +184,44 @@ export async function onRequestPost(context) {
   const images = normalizeImages(body && body.images);
   if (!images) return json({ error: "images_required" }, 400);
 
+  const saveKey = context.env.GALLERY_SAVE_KEY;
+  if (saveKey) {
+    const provided = context.request.headers.get("X-Gallery-Key") || "";
+    if (provided !== saveKey) return json({ error: "unauthorized" }, 401);
+  }
+
+  // 1) KV via Cloudflare env vars (if configured on Pages)
   try {
-    const meta = await fetchManifestMeta(token);
-    const payload = `${JSON.stringify({ images }, null, 2)}\n`;
-    const res = await fetch(`https://api.github.com/repos/${REPO}/contents/${PATH}`, {
-      method: "PUT",
-      headers: {
-        ...ghHeaders(token),
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        message: "chore(gallery): update photo order",
-        content: encodeContent(payload),
-        sha: meta.sha,
-        branch: BRANCH,
-      }),
-    });
-
-    if (!res.ok) {
-      const text = await res.text();
-      return json({ error: "write_failed", detail: text.slice(0, 300) }, 502);
+    if (await writeToKvEnv(context.env, images)) {
+      return json({ ok: true, images, via: "kv" });
     }
+  } catch (_) {
+    /* fall through */
+  }
 
-    const result = await res.json();
-    return json({
-      ok: true,
-      images,
-      sha: result.content && result.content.sha,
-      commit: result.commit && result.commit.sha,
-    });
-  } catch (err) {
-    return json({ error: "write_failed", detail: String(err.message || err) }, 502);
+  // 2) Dedicated order worker
+  try {
+    await writeToWorker(images);
+    return json({ ok: true, images, via: "worker" });
+  } catch (workerErr) {
+    // 3) Optional GitHub token on Pages
+    const token = context.env.GITHUB_TOKEN;
+    if (!token) {
+      return json(
+        {
+          error: "store_failed",
+          message: "บันทึกไม่สำเร็จ",
+          detail: String(workerErr.message || workerErr),
+        },
+        503
+      );
+    }
+    try {
+      const meta = await readFromGithub(token);
+      await writeToGithub(token, images, meta.sha);
+      return json({ ok: true, images, via: "github" });
+    } catch (err) {
+      return json({ error: "write_failed", detail: String(err.message || err) }, 502);
+    }
   }
 }
