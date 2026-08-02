@@ -660,12 +660,12 @@
 
       try {
         let ok = false;
-        // Browser → Worker first (same Cloudflare store the gallery reads from)
-        try { ok = await postOrder(WORKER_URL, images); } catch (_) { ok = false; }
+        // Same-origin API first (most reliable). Worker is fallback only.
+        try { ok = await postOrder("/api/gallery-order", images); } catch (_) { ok = false; }
         if (!ok) {
-          try { ok = await postOrder("/api/gallery-order", images); } catch (_) { ok = false; }
+          try { ok = await postOrder(WORKER_URL, images); } catch (_) { ok = false; }
         }
-        if (!ok) throw new Error("เซิร์ฟเวอร์ยังไม่พร้อม — เปิดลิงก์เปิดใช้ระบบบันทึกก่อน (ดูด้านล่าง)");
+        if (!ok) throw new Error("เซิร์ฟเวอร์ยังไม่พร้อมบันทึก — รีเฟรชหน้าแล้วลองใหม่");
         setStatus("บันทึกแล้ว — หน้าแกลเลอรีใช้ลำดับใหม่ได้ทันที", true);
       } catch (err) {
         setStatus(`บันทึกไม่สำเร็จ: ${err.message || err}`);
