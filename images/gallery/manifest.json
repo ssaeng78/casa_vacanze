@@ -1,16 +1,18 @@
 {
   "images": [
-    "images/bedroom-semicircle-exterior.jpg",
+    "images/card-entrance.png",
     "images/card-courtyard.png",
     "images/garden-cosmos.jpg",
-    "images/card-entrance.png",
+    "images/bedroom-semicircle-exterior.jpg",
     "images/card-living.png",
     "images/card-pool.png",
     "images/detail-1.jpg",
-    "images/detail-2.jpg",
     "images/dining-area.jpg",
     "images/explore-hero.jpg",
     "images/exterior.jpg",
+    "images/detail-2.jpg",
+    "images/view-mountain-villa.jpg",
+    "images/view-terrace-garden.jpg",
     "images/garden-hillside.jpg",
     "images/garden-ivy-detail.jpg",
     "images/garden-misty-view.jpg",
@@ -71,6 +73,7 @@
     "images/view-aerial-pool.jpg",
     "images/toscana-valley-gallery/IMG_20210914_174140.JPG",
     "images/toscana-valley-gallery/IMG_20210914_174145.JPG",
+    "images/view-garden-house.jpg",
     "images/toscana-valley-gallery/IMG_20210916_063340.JPG",
     "images/toscana-valley-gallery/IMG_3751.jpg",
     "images/toscana-valley-gallery/P1010254.jpg",
@@ -79,12 +82,8 @@
     "images/toscana-view.jpg",
     "images/view-evening-villa.jpg",
     "images/view-fountain-mountain.jpg",
-    "images/view-garden-house.jpg",
     "images/view-garden-mountain-wide.jpg",
     "images/view-misty-villa.jpg",
-    "images/view-mountain-villa.jpg",
-    "images/view-pool-garden-wide.jpg",
-    "images/view-pool-terrace.jpg",
-    "images/view-terrace-garden.jpg"
+    "images/view-pool-terrace.jpg"
   ]
 }
