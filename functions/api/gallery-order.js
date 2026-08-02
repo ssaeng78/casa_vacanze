@@ -4,15 +4,6 @@ const BRANCH = "main";
 const UA = "casa-vacanze-gallery";
 const WORKER_URL = "https://casa-gallery-order.band-soda.workers.dev/";
 
-// KV store credentials (preview account). Split to avoid naive secret scanners.
-// After claiming the preview worker, Save continues via worker/KV.
-const CF_ACCOUNT_ID = "f710f7a25fd85422601a204c38d56220";
-const CF_KV_NAMESPACE_ID = "0a1aefecc7974f529a24b8654456011b";
-const CF_TOKEN_PARTS = [
-  "cfat_264m3ZXkuDeleCNX",
-  "DpaIvQe6KPfZne6WtsNRUUqMac2b16dd",
-];
-
 const json = (data, status = 200) =>
   new Response(JSON.stringify(data), {
     status,
@@ -59,27 +50,30 @@ const encodeContent = (text) => {
   return btoa(binary);
 };
 
-const cfToken = (env) => env.CF_API_TOKEN || CF_TOKEN_PARTS.join("");
-const cfAccount = (env) => env.CF_ACCOUNT_ID || CF_ACCOUNT_ID;
-const cfNamespace = (env) => env.CF_KV_NAMESPACE_ID || CF_KV_NAMESPACE_ID;
-
-const kvValueUrl = (env) =>
-  `https://api.cloudflare.com/client/v4/accounts/${cfAccount(env)}/storage/kv/namespaces/${cfNamespace(env)}/values/order`;
-
-async function readFromKv(env) {
-  const res = await fetch(kvValueUrl(env), {
-    headers: { Authorization: `Bearer ${cfToken(env)}`, "User-Agent": UA },
+async function readFromKvEnv(env) {
+  const account = env.CF_ACCOUNT_ID;
+  const ns = env.CF_KV_NAMESPACE_ID;
+  const token = env.CF_API_TOKEN;
+  if (!account || !ns || !token) return null;
+  const url = `https://api.cloudflare.com/client/v4/accounts/${account}/storage/kv/namespaces/${ns}/values/order`;
+  const res = await fetch(url, {
+    headers: { Authorization: `Bearer ${token}`, "User-Agent": UA },
   });
   if (res.status === 404) return null;
   if (!res.ok) throw new Error(`kv_read_${res.status}`);
   return normalizeImages(await res.json());
 }
 
-async function writeToKv(env, images) {
-  const res = await fetch(kvValueUrl(env), {
+async function writeToKvEnv(env, images) {
+  const account = env.CF_ACCOUNT_ID;
+  const ns = env.CF_KV_NAMESPACE_ID;
+  const token = env.CF_API_TOKEN;
+  if (!account || !ns || !token) return false;
+  const url = `https://api.cloudflare.com/client/v4/accounts/${account}/storage/kv/namespaces/${ns}/values/order`;
+  const res = await fetch(url, {
     method: "PUT",
     headers: {
-      Authorization: `Bearer ${cfToken(env)}`,
+      Authorization: `Bearer ${token}`,
       "Content-Type": "text/plain",
       "User-Agent": UA,
     },
@@ -136,10 +130,7 @@ async function readFromGithub(token) {
 }
 
 async function writeToGithub(token, images, sha) {
-  // Guard against accidental wipe (e.g. tiny test payloads).
-  if (!images || images.length < 5) {
-    throw new Error("refusing_to_write_tiny_manifest");
-  }
+  if (!images || images.length < 5) throw new Error("refusing_to_write_tiny_manifest");
   const payload = `${JSON.stringify({ images }, null, 2)}\n`;
   const res = await fetch(`https://api.github.com/repos/${REPO}/contents/${PATH}`, {
     method: "PUT",
@@ -161,7 +152,7 @@ async function writeToGithub(token, images, sha) {
 export async function onRequestGet(context) {
   try {
     try {
-      const images = await readFromKv(context.env);
+      const images = await readFromKvEnv(context.env);
       if (images) return json({ images, source: "kv" });
     } catch (_) {
       /* fall through */
@@ -203,15 +194,12 @@ export async function onRequestPost(context) {
   let via = null;
   const errors = [];
 
-  // 1) Direct KV write (works from Pages Function without browser→workers.dev)
   try {
-    await writeToKv(context.env, images);
-    via = "kv";
+    if (await writeToKvEnv(context.env, images)) via = "kv";
   } catch (err) {
     errors.push(String(err.message || err));
   }
 
-  // 2) Worker (also syncs GitHub when it has a token)
   if (!via) {
     try {
       await writeToWorker(images);
@@ -220,15 +208,13 @@ export async function onRequestPost(context) {
       errors.push(String(err.message || err));
     }
   } else {
-    // Best-effort mirror into worker/GitHub, but don't fail the save.
     try {
       await writeToWorker(images);
     } catch (_) {
-      /* ignore */
+      /* ignore mirror errors */
     }
   }
 
-  // 3) Optional GitHub token on Pages
   if (!via) {
     const token = context.env.GITHUB_TOKEN;
     if (!token) {
@@ -247,13 +233,6 @@ export async function onRequestPost(context) {
       via = "github";
     } catch (err) {
       return json({ error: "write_failed", detail: String(err.message || err) }, 502);
-    }
-  } else if (context.env.GITHUB_TOKEN && images.length >= 5) {
-    try {
-      const meta = await readFromGithub(context.env.GITHUB_TOKEN);
-      await writeToGithub(context.env.GITHUB_TOKEN, images, meta.sha);
-    } catch (_) {
-      /* ignore */
     }
   }
 
